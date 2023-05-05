@@ -1,0 +1,21 @@
+-Take the request (json) from Front, convert to java class, do ur preprocessing and make the request, recieve the result from database, convert to java class, 
+do ur ranking, convert to json, send to front.
+
+-When inserting documents in db, only insert URL and Document Text
+
+- Add synchronized on all global variables for threads
+
+-import org.tartarus.snowball.ext.EnglishStemmer;
+
+-https://snowballstem.org/download.html
+
+public class StemmingExample {
+    public static void main(String[] args) {
+        EnglishStemmer stemmer = new EnglishStemmer();
+        String word = "running";
+        stemmer.setCurrent(word);
+        stemmer.stem();
+        String stemmedWord = stemmer.getCurrent();
+        System.out.println(stemmedWord);
+    }
+}
