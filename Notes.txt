@@ -19,3 +19,15 @@ public class StemmingExample {
         System.out.println(stemmedWord);
     }
 }
+
+-Ranking in node by calculating priority= idf*tf (from db) before sending response.
+
+-Remove Stop words during pre-processing
+
+-Remove ThreadName and Number from database.
+
+-Phrase Searching: if the request includes " " don't do preprocessing and search the entire document for the wanted word.
+
+- Create a third collection for phrase searching where the whole document is stored but after some processing removing tags etc...
+
+- Page Rank Library: Apache Commons Math
