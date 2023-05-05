@@ -31,3 +31,18 @@ public class StemmingExample {
 - Create a third collection for phrase searching where the whole document is stored but after some processing removing tags etc...
 
 - Page Rank Library: Apache Commons Math
+
+-Jsoup library for extracting text from html document.
+
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
+public class Example {
+    public static void main(String[] args) {
+        String html = "<html><head><title>Example</title></head><body><p>Hello, world!</p></body></html>";
+        Document doc = Jsoup.parse(html);
+        String text = doc.text();
+        System.out.println(text); // Output: Example Hello, world!
+    }
+}
