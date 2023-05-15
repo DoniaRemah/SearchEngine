@@ -101,22 +101,22 @@ public class DBManager {
             for (int i = 0; i < IndexerTable.get(word).size(); i++) {
 
                 // i-> index of every document associated with the word.
-                Document data = IndexerTable.get(word).get(i);
+                Document wordDocData = IndexerTable.get(word).get(i);
                 Document WordDocProperties = new Document();
 
-                // Extracting data to be inserted in each documented associated.
-                String url = String.valueOf(data.get("URL"));
-                String title = String.valueOf(data.get("title"));
-                String TF = String.valueOf(data.get("TF"));
-                String Doc = String.valueOf(data.get("Content"));
-                String IDF = String.valueOf(data.get("IDF"));
+                // Extracting data to be inserted in each associated documented.
+                String url = String.valueOf(wordDocData.get("URL"));
+                String title = String.valueOf(wordDocData.get("title"));
+                String TF = String.valueOf(wordDocData.get("TF"));
+                String Doc = String.valueOf(wordDocData.get("Content"));
+                String IDF = String.valueOf(wordDocData.get("IDF"));
 
 
                 WordDocProperties.append("URL", url);
                 WordDocProperties.append("Title", title);
                 WordDocProperties.append("TF", TF);
-                WordDocProperties.append("IDF", IDF);
                 WordDocProperties.append("Content", Doc);
+                WordDocProperties.append("IDF", IDF);
 
                 // Adding each document for a single word.
                 wordProperty.add(WordDocProperties);
@@ -125,7 +125,7 @@ public class DBManager {
             // Appending the associated documents to each word.
             docToBeInserted.append("FoundInDocs", wordProperty);
 
-            // Adding the final document containing word and associated documents in a list
+            // Adding the final document containing word and associated documents in a list to be inserted in db later
             docsListToBeInserted.add(docToBeInserted);
         }
         collection.insertMany(docsListToBeInserted);
