@@ -34,7 +34,7 @@ public class DBManager {
         System.out.println("Database Connected Successfully");
     }
 
-    // CRAWLER REQUESTS
+    ////////////////////////////////////////////////////////// CRAWLER REQUESTS
 
     // Get all Documents from Crawler Collection
     public List<Document> retrieveCrawlerDocuments() {
@@ -80,7 +80,7 @@ public class DBManager {
     }
 
 
-    // INDEXER REQUESTS
+    ///////////////////////////////////////////////// INDEXER REQUESTS
 
     // Insert final hashtable into indexer collection
     public void insertIndexerDocs(Hashtable<String, List<Document>> IndexerTable) {
@@ -107,16 +107,16 @@ public class DBManager {
                 // Extracting data to be inserted in each associated documented.
                 String url = String.valueOf(wordDocData.get("URL"));
                 String title = String.valueOf(wordDocData.get("title"));
-                String TF = String.valueOf(wordDocData.get("TF"));
+                //String TF = String.valueOf(wordDocData.get("TF"));
                 String Doc = String.valueOf(wordDocData.get("Content"));
-                String IDF = String.valueOf(wordDocData.get("IDF"));
+                String IDF_TF = String.valueOf(wordDocData.get("IDF_TF"));
 
 
                 WordDocProperties.append("URL", url);
                 WordDocProperties.append("Title", title);
-                WordDocProperties.append("TF", TF);
+                //WordDocProperties.append("TF", TF);
                 WordDocProperties.append("Content", Doc);
-                WordDocProperties.append("IDF", IDF);
+                WordDocProperties.append("IDF_TF", IDF_TF);
 
                 // Adding each document for a single word.
                 wordProperty.add(WordDocProperties);
@@ -131,7 +131,7 @@ public class DBManager {
         collection.insertMany(docsListToBeInserted);
         System.out.println("Inserted Indexer Documents into Indexer Collection");
     }
-    
+
     // Close connection to the database
     public void close() {
 
