@@ -131,5 +131,11 @@ public class DBManager {
         collection.insertMany(docsListToBeInserted);
         System.out.println("Inserted Indexer Documents into Indexer Collection");
     }
+    
+    // Close connection to the database
+    public void close() {
+
+        mongoClient.close();
+    }
 
 }
