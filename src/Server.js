@@ -47,7 +47,6 @@ app.get('/test',async (req,res)=>{
 }
 );
 
-//TODO: the suggestions route
 // store the previous queries by the user: in the database 
 //Collection called suggestions
 // with every new query, search the database for the previous queries and return the suggestions
@@ -79,9 +78,12 @@ app.get('/suggestion',async (req,res)=>{
 
 
 
-// TODO: The searching route
+
 //note that you have to store the query 
 app.get('/search',async (req,res)=>{
+
+    //TODO: Implement phrase search
+    //will search for the exact phrase in the document of crawler
     
     //start time
     const start=Date.now();
@@ -155,6 +157,8 @@ app.get('/search',async (req,res)=>{
     for(let i=0;i<finalQueryWords.length;i++){
         const foundWord=await database.collection("Indexer").find({Word:finalQueryWords[i]}).toArray();
         // console.log(foundWord);
+
+        
         if(foundWord.length>0){
             foundWord[0].FoundInDocs.forEach(object => {
                 foundDocuments.push(object);
@@ -173,7 +177,8 @@ app.get('/search',async (req,res)=>{
     //the last element is the document with the lowest rank
     //the array is sorted in descending order
 
-    // TODO: tf-idf for more than one word, should I add them?
+    // TODO: Sort according to the IDF_TF value
+    // TODO: for snippet, search for the actual query in the original document from crawler for accuracy
 
 
     ///////////////////////////////////////////////////////////////Return the results///////////////////////////////////////////////
