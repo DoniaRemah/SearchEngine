@@ -130,6 +130,7 @@ app.get('/search',async (req,res)=>{
 
     ///////////////////////////////////////////////////////////////Preprocessing on query///////////////////////////////////////////////
 
+    ////////////////////////////////////////////////phrase search///////////////////////////////////////////////
     //case of phrase search
     if(isPhraseSearch){ 
         //remove stop words
@@ -215,6 +216,7 @@ app.get('/search',async (req,res)=>{
         }
 
     }
+    ////////////////////////////////////////////////regular search///////////////////////////////////////////////
     else
     {
         //case of not phrase search 
@@ -261,9 +263,13 @@ app.get('/search',async (req,res)=>{
             
             if(foundWord.length>0){
                 foundWord[0].FoundInDocs.forEach(object => {
+                    //the object here in the indexer will only contain the url and the IDF_TF value
+                    object.word=finalQueryWords[i];
                     foundDocuments.push(object);
                 });    
             }
+
+
         }
         // console.log(foundDocuments);
 
@@ -293,8 +299,47 @@ app.get('/search',async (req,res)=>{
         const endIndex=page*limit;
         //slice the array
         const results=foundDocuments.slice(startIndex,endIndex);
-        //return the results
-        response.result=results;
+
+        //in the Crawler collection in the database
+        //TODO: change "Crawler" collection to "WebCrawler"
+
+        //for every object in the results array, search the database for the document with the same URL
+        //search for the URL in the URL field
+        //will get the title and the snippet from the content of the document
+
+        for(let i=0;i<results.length;i++)
+        {
+            //search for the URL in the database
+            const foundDocument=await database.collection("Crawler").findOne({URL:results[i].URL});
+            // the found document will contain the URL, Title, and Content fields
+            var tempObject={};
+            tempObject.URL=results[i].URL;
+            tempObject.Title=foundDocument.Title;
+            //find the index of the stemmed word in the content
+            const index=foundDocument.Content.indexOf(results[i].word);
+            //take a snippet around the query
+            //the snippet is 400 characters long
+            //the snippet is centered around the query
+            //check the cases of index
+            if (index-400<0){
+                if(index+400<foundDocument.Content.length){
+                    tempObject.Content=foundDocument.Content.slice(0,index+400);
+                }
+                else{
+                    tempObject.Content=foundDocument.Content.slice(0,index);
+                }
+            }
+            else if(index+400>foundDocument.Content.length){
+                if(index-400>0){
+                    tempObject.Content=foundDocument.Content.slice(index-400,index);
+                }
+            }
+            else{
+                tempObject.Content=foundDocument.Content.slice(index-400,index+400);
+            }
+
+            response.result.push(tempObject);
+        }
 
         const totalResults=foundDocuments.length;
         const totalPages=Math.ceil(totalResults/limit);
@@ -304,11 +349,6 @@ app.get('/search',async (req,res)=>{
         response.pagination.currentPage=page;
         response.pagination.nextPage=page < totalPages ? page + 1 : null,
         response.pagination.previousPage=page > 1 ? page - 1 : null
-
-        //remove the IDF_TF field from all the objects of the response result array
-        response.result.forEach(object => {
-            delete object.IDF_TF;
-        });
 
         //return the response
         try{
@@ -340,6 +380,25 @@ app.get('/insertInCrawler',async (req,res)=>{
         res.status(500).json({message:'Error in inserting the document in the crawler collection'});
     }
 });
+
+
+//function to insert in indexer collection
+//FOR TESTING ONLY
+app.get('/insertInIndexer',async (req,res)=>{
+    //get the request.body
+    const body=req.body;
+    //insert the body in the database
+    try{
+        await database.collection("Indexer").insertOne(body);
+        console.log('The document is inserted in the indexer collection');
+        res.status(200).json({message:'The document is inserted in the indexer collection'});
+    }
+    catch(error){
+        console.log('Error in inserting the document in the indexer collection');
+        res.status(500).json({message:'Error in inserting the document in the indexer collection'});
+    }
+});
+
 
 
 
