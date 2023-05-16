@@ -19,7 +19,7 @@ public class Indexer implements Runnable{
     int threadChunk;
 
     int numberOfThreads;
-    int  threadID = Integer.parseInt(Thread.currentThread().getName());
+    int  threadID;
     int threadChunkRem;
 
     DBManager dbManager = new DBManager();
@@ -38,10 +38,13 @@ public class Indexer implements Runnable{
     }
     @Override
     public void run() {
+        threadID = Integer.parseInt(Thread.currentThread().getName());
         int modified_threadChunk=threadChunk;
+
         if (threadID == numberOfThreads-1){
             modified_threadChunk+= threadChunkRem;
         }
+
         int docStart = threadChunk*threadID;
         int docEnd = (threadChunk*threadID) + modified_threadChunk;
 
@@ -53,7 +56,7 @@ public class Indexer implements Runnable{
             Indexing(url,htmlDoc);
         }
 
-        System.out.println("I am thread "+threadID+"Finished docs from index "+docStart +"to "+docEnd );
+        System.out.println("I am thread "+threadID+" Finished docs from index "+docStart +" to "+ (docEnd-1) );
     }
 
     private void Indexing(String URL, String htmlDoc){
@@ -75,7 +78,7 @@ public class Indexer implements Runnable{
             Scanner Words = new Scanner(StopWords);
 
             while (Words.hasNextLine()) {
-                docContent = docContent.replaceAll(Words.nextLine() + "\\s+", " ");
+                docContent = docContent.replaceAll("\\s+" +Words.nextLine() + "\\s+", " ");
             }
 
             Words.close();

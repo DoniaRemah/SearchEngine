@@ -13,7 +13,7 @@ public class StemmingExample {
     public static void main(String[] args) {
         EnglishStemmer stemmer = new EnglishStemmer();
         String word = "running";
-        stemmer.setCurrent(word);
+        stemmer.setCurrent(word)3B
         stemmer.stem();
         String stemmedWord = stemmer.getCurrent();
         System.out.println(stemmedWord);

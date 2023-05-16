@@ -86,6 +86,12 @@ public class DBManager {
     public void insertIndexerDocs(Hashtable<String, List<Document>> IndexerTable) {
 
         MongoCollection<Document> collection = database.getCollection("Indexer");
+
+        // TODO DON'T DROP COLLETION. IMPLEMENT ADDITIVE PROPERTY.
+        collection.drop();
+        collection = database.getCollection("Indexer");
+
+
         List<Document> docsListToBeInserted = new ArrayList<Document>();
 
         // Looping over every word.
@@ -106,7 +112,7 @@ public class DBManager {
 
                 // Extracting data to be inserted in each associated documented.
                 String url = String.valueOf(wordDocData.get("URL"));
-                String title = String.valueOf(wordDocData.get("title"));
+                String title = String.valueOf(wordDocData.get("Title"));
                 //String TF = String.valueOf(wordDocData.get("TF"));
                 String Doc = String.valueOf(wordDocData.get("Content"));
                 String IDF_TF = String.valueOf(wordDocData.get("IDF_TF"));
