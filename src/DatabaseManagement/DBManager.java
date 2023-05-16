@@ -89,7 +89,7 @@ public class DBManager {
 
         MongoCollection<Document> collection = database.getCollection("Indexer");
 
-        // TODO DON'T DROP COLLETION. IMPLEMENT ADDITIVE PROPERTY (FINISHED-NEEDS EXTRA CHECKS)
+        // TODO OPTIMIZE
 //        collection.drop();
 //        collection = database.getCollection("Indexer");
 
@@ -121,14 +121,14 @@ public class DBManager {
                     String url = String.valueOf(wordDocData.get("URL"));
                     String title = String.valueOf(wordDocData.get("Title"));
                     //String TF = String.valueOf(wordDocData.get("TF"));
-                    String Doc = String.valueOf(wordDocData.get("Content"));
+//                    String Doc = String.valueOf(wordDocData.get("Content"));
                     String IDF_TF = String.valueOf(wordDocData.get("IDF_TF"));
 
 
                     WordDocProperties.append("URL", url);
                     WordDocProperties.append("Title", title);
                     //WordDocProperties.append("TF", TF);
-                    WordDocProperties.append("Content", Doc);
+//                    WordDocProperties.append("Content", Doc);
                     WordDocProperties.append("IDF_TF", IDF_TF);
 
                     // Adding each document for a single word.
@@ -154,7 +154,7 @@ public class DBManager {
                         String url = String.valueOf(wordDocData.get("URL"));
                         String title = String.valueOf(wordDocData.get("Title"));
                         //String TF = String.valueOf(wordDocData.get("TF"));
-                        String Doc = String.valueOf(wordDocData.get("Content"));
+//                        String Doc = String.valueOf(wordDocData.get("Content"));
                         String IDF_TF = String.valueOf(wordDocData.get("IDF_TF"));
 
 
@@ -171,7 +171,7 @@ public class DBManager {
                             WordDocProperties.append("URL", url);
                             WordDocProperties.append("Title", title);
                             //WordDocProperties.append("TF", TF);
-                            WordDocProperties.append("Content", Doc);
+//                            WordDocProperties.append("Content", Doc);
                             WordDocProperties.append("IDF_TF", IDF_TF);
 
                             collection.updateOne(
