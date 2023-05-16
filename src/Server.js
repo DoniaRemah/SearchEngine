@@ -82,7 +82,7 @@ app.get('/suggestion',async (req,res)=>{
 //note that you have to store the query 
 app.get('/search',async (req,res)=>{
 
-    //TODO: Implement phrase search
+    
     //will search for the exact phrase in the document of crawler
     var isPhraseSearch=false;
     
@@ -275,16 +275,10 @@ app.get('/search',async (req,res)=>{
 
         ///////////////////////////////////////////////////////////////Ranking the documents///////////////////////////////////////////////
 
-        //rank based on the IDF_TF value inside the array of objects
-        //the array of objects is the FoundInDocs field
-        //the IDF_TF value is the IDF_TF field
-        //sort the array
-        //the first element is the document with the highest rank
-        //the last element is the document with the lowest rank
-        //the array is sorted in descending order
-
         // TODO: Sort according to the IDF_TF value
-        // TODO: for snippet, search for the actual query in the original document from crawler for accuracy
+        // convert the IDF_TF value to a number
+        // sort the array of objects based on the IDF_TF value
+        foundDocuments.sort((a,b)=>parseFloat(b.IDF_TF)-parseFloat(a.IDF_TF));
 
 
         ///////////////////////////////////////////////////////////////Return the results///////////////////////////////////////////////
