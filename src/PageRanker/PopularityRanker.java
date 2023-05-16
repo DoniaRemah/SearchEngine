@@ -1,6 +1,7 @@
 package PageRanker;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -23,9 +24,8 @@ public class PopularityRanker {
      */
     PopularityRanker(int numberOfIterations){
         readFromJson();
-        Rank(path.size());
         this.numberOfIterations = numberOfIterations;
-
+        Rank(path.size());
     }
 
     /**
@@ -66,7 +66,26 @@ public class PopularityRanker {
             IterationIndex = IterationIndex + 1;
         }
 
-        //TODO Export Ranks to db
+        //TODO Remove this and Export Ranks to db
+
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            String json = objectMapper.writeValueAsString(pagerank);
+
+            try (FileWriter fileWriter = new FileWriter("src/PageRanker")) {
+                // Create ObjectMapper instance
+                ObjectMapper writeToFileobjectMapper = new ObjectMapper();
+
+                // Write the JSON string to the file
+                writeToFileobjectMapper.writeValue(fileWriter, json);
+
+                System.out.println("JSON exported to file successfully.");
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
 
     }
 
@@ -79,14 +98,23 @@ public class PopularityRanker {
         ObjectMapper mapper = new ObjectMapper();
 
         try {
-            PathData data = mapper.readValue(new File("paths.json"), PathData.class);
-            String url = data.getURL();
-            List<String> pointsTo = data.getPointsTo();
+            File jsonFile = new File("src/PageRanker/paths.json");
+            PathData[] jsondata = mapper.readValue(jsonFile, PathData[].class);
 
-            path.put(url,pointsTo);
+            for (PathData jsondatum : jsondata) {
+                String url = jsondatum.getURL();
+                List<String> pointsTo = jsondatum.getPointsTo();
+                path.put(url, pointsTo);
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+
+    public static void main(String[] args) {
+        PopularityRanker ranker = new PopularityRanker(2);
     }
 
 

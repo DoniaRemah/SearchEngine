@@ -8,4 +8,12 @@ import java.util.List;
 public class PathData {
     public String URL;
     public List<String> pointsTo;
+
+    public List<String> getPointsTo() {
+        return pointsTo;
+    }
+
+    public String getURL() {
+        return URL;
+    }
 }

@@ -1,0 +1,17 @@
+[
+  {
+    "URL": "https://www.southsideblooms.com/how-flowers-are-important-in-our-life/",
+    "pointsTo":
+    ["https://www.southsideblooms.com/happy-sunday-flower-delivery/",
+      "https://www.southsideblooms.com/get-well-flowers-for-her/",
+      "https://www.southsideblooms.com/roses-and-lilies-bouquet/"]
+  },
+  {
+    "URL": "https://www.southsideblooms.com/happy-sunday-flower-delivery/",
+    "pointsTo":
+    ["https://www.southsideblooms.com/peony-bouquet-delivery/",
+      "https://www.southsideblooms.com/get-well-flowers-for-her/",
+      "https://www.southsideblooms.com/category/flowers/"]
+  }
+]
+
