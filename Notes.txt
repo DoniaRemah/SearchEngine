@@ -46,3 +46,21 @@ public class Example {
         System.out.println(text); // Output: Example Hello, world!
     }
 }
+
+
+//////////////////////// CODE TO RETRIEVE LIST OF ASSOCIATED DOCUMENTS OF A SPECIFIC WORD:
+
+// Retireving list of associated documents of the word already existing in database
+                Document query = new Document("Word", word);
+                Document projection = new Document("FoundInDocs", 1);
+
+                Document result = collection.find(query).projection(projection).first();
+
+                if (result != null) {
+                    List<Document> foundInDocs = result.getList("FoundInDocs", Document.class);
+                    // Process the list of found documents here
+                }
+
+
+
+
