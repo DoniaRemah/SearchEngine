@@ -40,13 +40,14 @@ public class MasterIndexer {
         AtomicInteger actualCrawlerDocsSize = new AtomicInteger(crawlerDocsSize);
 
         // TODO FOR TESTING PURPOSES (DELETE WHEN CRAWLER IS FINISHED)
+
         List<org.bson.Document> crawlerDocs = new ArrayList<>();
 
         StringBuilder htmlContent = new StringBuilder();
         String urlString="";
         try {
             // Specify the URL of the HTML page
-            urlString = "https://www.southsideblooms.com/how-flowers-are-important-in-our-life/";
+            urlString = "https://www.britannica.com/art/perfume";
             URL url = new URL(urlString);
 
             // Open a connection to the URL

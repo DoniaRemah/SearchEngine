@@ -61,6 +61,8 @@ public class Indexer implements Runnable{
 
     private void Indexing(String URL, String htmlDoc){
 
+        // TODO Remove all html doc processing and start from Stemming.
+
         // REMOVE HTML TAGS
         Document parsedHtmlDoc = Jsoup.parse(htmlDoc);
         String docTitle = parsedHtmlDoc.title() ;

@@ -38,6 +38,7 @@ public class DBManager {
     ////////////////////////////////////////////////////////// CRAWLER REQUESTS
 
     // Get all Documents from Crawler Collection
+    // TODO Add Title Field
     public List<Document> retrieveCrawlerDocuments() {
 
         MongoCollection<Document> collection = database.getCollection("WebCrawler");
@@ -54,9 +55,9 @@ public class DBManager {
     }
 
     // Insert a crawler document into the webcrawler collection
-    public void insertCrawlerDocument(String htmlDocString, String URL) {
+    public void insertCrawlerDocument(String htmlDocString, String URL, String title) {
         MongoCollection<Document> collection = database.getCollection("WebCrawler");
-        Document document = new Document("URL", URL).append("HTMLDoc", htmlDocString);
+        Document document = new Document("URL", URL).append("Title",title).append("HTMLDoc", htmlDocString);
         // Inserting document into the collection
         collection.insertOne(document);
         System.out.println("Document inserted successfully");
@@ -88,10 +89,11 @@ public class DBManager {
 
         MongoCollection<Document> collection = database.getCollection("Indexer");
 
-        // TODO DON'T DROP COLLETION. IMPLEMENT ADDITIVE PROPERTY.
+        // TODO DON'T DROP COLLETION. IMPLEMENT ADDITIVE PROPERTY (FINISHED-NEEDS EXTRA CHECKS)
 //        collection.drop();
 //        collection = database.getCollection("Indexer");
 
+        // TODO Remove adding content from db
 
         List<Document> docsListToBeInserted = new ArrayList<Document>();
 
