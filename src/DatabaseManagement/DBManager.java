@@ -6,10 +6,11 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.UpdateOptions;
 import org.bson.Document;
 
-import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -37,7 +38,9 @@ public class DBManager {
 
     ////////////////////////////////////////////////////////// CRAWLER REQUESTS
 
-    // Get all Documents from Crawler Collection
+    /**
+     *  Get all Documents from Crawler Collection
+     */
     // TODO Add Title Field
     public List<Document> retrieveCrawlerDocuments() {
 
@@ -54,7 +57,9 @@ public class DBManager {
         return list;
     }
 
-    // Insert a crawler document into the webcrawler collection
+    /**
+     * // Insert a crawler document into the webcrawler collection
+     */
     public void insertCrawlerDocument(String htmlDocString, String URL, String title) {
         MongoCollection<Document> collection = database.getCollection("WebCrawler");
         Document document = new Document("URL", URL).append("Title",title).append("HTMLDoc", htmlDocString);
@@ -64,7 +69,9 @@ public class DBManager {
         System.out.println("Crawler Document Inserted successfully"+ URL);
     }
 
-    // Delete a crawler document from the webcrawler collection
+    /**
+     * Delete a crawler document from the webcrawler collection
+     */
     public void deleteCrawlerDocument(String URL) {
 
         MongoCollection<Document> collection = database.getCollection("WebCrawler");
@@ -84,7 +91,9 @@ public class DBManager {
 
     ///////////////////////////////////////////////// INDEXER REQUESTS
 
-    // Insert final hashtable into indexer collection
+    /**
+     * Insert final hashtable into indexer collection
+     */
     public void insertIndexerDocs(Hashtable<String, List<Document>> IndexerTable) {
 
         MongoCollection<Document> collection = database.getCollection("Indexer");
@@ -92,8 +101,6 @@ public class DBManager {
         // TODO OPTIMIZE
 //        collection.drop();
 //        collection = database.getCollection("Indexer");
-
-        // TODO Remove adding content from db
 
         List<Document> docsListToBeInserted = new ArrayList<Document>();
 
@@ -194,7 +201,32 @@ public class DBManager {
         System.out.println("Inserted Indexer Documents into Indexer Collection");
     }
 
-    // Close connection to the database
+    ///////////////////////////////////////// RANKER REQUESTS
+
+    /**
+     * This function takes the hashmap of urls and its corresponding rank and adds them
+     * to Crawler Collection.
+     */
+    public void insertRank(HashMap<String, Double> ranks){
+        MongoCollection<Document> collection = database.getCollection("WebCrawler");
+
+        for (String URL: ranks.keySet()){
+            Document filter = new Document("URL", URL);
+            Document update = new Document("$set", new Document("Rank", ranks.get(URL)));
+            collection.updateOne(filter, update);
+        }
+
+    }
+
+
+
+
+    
+    //////////////////////////////////////// CLOSING
+
+    /**
+     * Close connection to the database
+     */
     public void close() {
 
         mongoClient.close();

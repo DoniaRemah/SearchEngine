@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
+import DatabaseManagement.DBManager;
 import com.fasterxml.jackson.databind.*;
 
 /**
@@ -15,7 +16,7 @@ public class PopularityRanker {
 
     HashMap<String,List<String>> path = new HashMap<>();
 
-    HashMap<String ,Double> pagerank = new HashMap<>();
+    HashMap<String , Double> pagerank = new HashMap<>();
 
     int numberOfIterations;
 
@@ -66,26 +67,9 @@ public class PopularityRanker {
             IterationIndex = IterationIndex + 1;
         }
 
-        //TODO Remove this and Export Ranks to db
-
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            String json = objectMapper.writeValueAsString(pagerank);
-
-            try (FileWriter fileWriter = new FileWriter("src/PageRanker")) {
-                // Create ObjectMapper instance
-                ObjectMapper writeToFileobjectMapper = new ObjectMapper();
-
-                // Write the JSON string to the file
-                writeToFileobjectMapper.writeValue(fileWriter, json);
-
-                System.out.println("JSON exported to file successfully.");
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        DBManager dbmanager = new DBManager();
+        dbmanager.insertRank(pagerank);
+        dbmanager.close();
 
     }
 
@@ -113,6 +97,7 @@ public class PopularityRanker {
     }
 
 
+    // TODO REMOVE THIS MAIN (NOT NEEDED)
     public static void main(String[] args) {
         PopularityRanker ranker = new PopularityRanker(2);
     }
