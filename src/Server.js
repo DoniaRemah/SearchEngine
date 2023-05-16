@@ -26,13 +26,20 @@ const databaseConnection= async()=>{
 //Call the database connection function
 databaseConnection();
 //Start the server
-app.listen(PORT,()=>console.log(`Server is running on port ${PORT}`));
+const server=app.listen(PORT,()=>console.log(`Server is running on port ${PORT}`));
+server.on('error', () => {
+    console.log('Server error', error);
+});
+
 
 // Routes
 
 //test route
-app.get('/test',(req,res)=>{
-    res.send('Hello from the server');
+app.get('/test',async (req,res)=>{
+    const name=req.query.name;
+    return res.status(200).json({message: `Hello ${name}`});
 }
 );
+
+
 
