@@ -27,9 +27,12 @@ public class MasterIndexer {
 
     MasterIndexer(int numThreads) throws InterruptedException {
         this.number_threads = numThreads;
-        List<org.bson.Document> crawlerDocs = dbmanager.retrieveCrawlerDocuments();
-        crawlerDocsSize =  crawlerDocs.size();
-        //crawlerDocsSize = 1;
+
+        //List<org.bson.Document> crawlerDocs = dbmanager.retrieveCrawlerDocuments();
+        //crawlerDocsSize =  crawlerDocs.size();
+
+        // TESTING
+        crawlerDocsSize = 1;
 
         // Using AtomicInteger to find the actual docs without spams
         // Automatically synchronizes
@@ -37,36 +40,37 @@ public class MasterIndexer {
         AtomicInteger actualCrawlerDocsSize = new AtomicInteger(crawlerDocsSize);
 
         // TODO FOR TESTING PURPOSES (DELETE WHEN CRAWLER IS FINISHED)
-        //List<org.bson.Document> crawlerDocs = new ArrayList<>();
+        List<org.bson.Document> crawlerDocs = new ArrayList<>();
 
-//        StringBuilder htmlContent = new StringBuilder();
-//        String urlString="";
-//        try {
-//            // Specify the URL of the HTML page
-//            urlString = "https://www.southsideblooms.com/how-flowers-are-important-in-our-life/";
-//            URL url = new URL(urlString);
-//
-//            // Open a connection to the URL
-//            BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
-//
-//            // Read the HTML content line by line
-//            htmlContent = new StringBuilder();
-//            String line;
-//            while ((line = reader.readLine()) != null) {
-//                htmlContent.append(line);
-//            }
-//
-//            // Close the reader
-//            reader.close();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//
-//        Document testdoc = new Document();
-//        testdoc.append("URL",urlString).append("HTMLDoc",htmlContent.toString());
-//
-//        crawlerDocs.add(testdoc);
+        StringBuilder htmlContent = new StringBuilder();
+        String urlString="";
+        try {
+            // Specify the URL of the HTML page
+            urlString = "https://www.southsideblooms.com/how-flowers-are-important-in-our-life/";
+            URL url = new URL(urlString);
 
+            // Open a connection to the URL
+            BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
+
+            // Read the HTML content line by line
+            htmlContent = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                htmlContent.append(line);
+            }
+
+            // Close the reader
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Document testdoc = new Document();
+        testdoc.append("URL",urlString).append("HTMLDoc",htmlContent.toString());
+
+        crawlerDocs.add(testdoc);
+
+        // END OF TEST
         if (number_threads > actualCrawlerDocsSize.intValue()){
             number_threads = actualCrawlerDocsSize.intValue();
         }
