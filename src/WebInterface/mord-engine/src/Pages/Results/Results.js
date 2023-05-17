@@ -37,6 +37,7 @@ export default function Results(props) {
     // setInputValue(item);
     console.log(item);
     setInputValue(item);
+    setSuggestValue(item);
     setPage(1);
     navigate("/results/" + item);
   };
@@ -110,8 +111,8 @@ export default function Results(props) {
                 suggestionList.length !== 0 ? classes.input : classes.ninput
               }
               type="text"
-              Value={inputValue}
-              // value={suggestValue}
+              // value={inputValue}
+              value={suggestValue}
               onChange={handleInputChange}
               onKeyPress={handleKeyPresssearch}
               placeholder="Search MORD"
