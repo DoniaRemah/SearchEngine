@@ -72,6 +72,7 @@ export default function Results(props) {
 
     let check = /^\s*$/.test(inputValue);
     if (!check) {
+      setLoading(true);
       try {
         const request = await axios.get(
           "http://localhost:3001/search?query=" +
@@ -140,7 +141,7 @@ export default function Results(props) {
             </div>
             <div className={classes.cards}>
               {searchList.result.map((item, index) => (
-                <SingleCard key={index} item={item} />
+                <SingleCard key={index} item={item} words={searchList.Words} />
               ))}
             </div>
             <div className={classes.pagination}>

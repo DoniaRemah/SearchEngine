@@ -24,9 +24,9 @@ a {
 
   width: 60%;
 
-  display: -webkit-box;
-  -webkit-line-clamp: 3; /* Display up to 2 lines of text */
+  /* display: -webkit-box;
+  -webkit-line-clamp: 3; 
   -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
+  text-overflow: ellipsis; */
 }
