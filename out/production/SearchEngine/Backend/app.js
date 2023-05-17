@@ -16,6 +16,29 @@ const connectioString='mongodb+srv://abouelhadidola:8aWAvyLwc824XSm8@searchengin
 app.use(bodyParser.json());
 app.use(cors());
 
+
+///////////////////////////////trial to access the database files///////////////////////////////////////////
+let exportedCrawler = null;
+    try {
+    const fileContent = fs.readFileSync('./Exports/Crawler.json', 'utf8');
+    exportedCrawler = JSON.parse(fileContent);
+    //console.log(exportedCrawler);
+    } catch (err) {
+    console.error(err);
+    }
+    // console.log(exportedCrawler.length);
+
+let exportedIndexer = null;
+try {
+    const fileContent = fs.readFileSync('./Exports/Indexer.json', 'utf8');
+    exportedIndexer = JSON.parse(fileContent);
+    //console.log(exportedIndexer);
+    } catch (err) {
+    console.error(err);
+    }
+
+    // console.log(exportedIndexer.length);
+
 //Connect to the database
 const client=new mongo.MongoClient(connectioString,{useNewUrlParser:true,useUnifiedTopology:true});
 const connectToDatabase=async()=>{
@@ -135,15 +158,21 @@ app.get('/search',async (req,res)=>{
     //case of phrase search
     if(isPhraseSearch){ 
         //remove stop words
-        const stopWords=fs.readFileSync('StopWords.txt','utf8').split('\r\n');
-        const query1=lodash.difference(query.split(' '),stopWords).join(' ');
-        //lowercase
+        // const stopWords=fs.readFileSync('StopWords.txt','utf8').split('\r\n');
+        const query1=lodash.difference(query.split(' '),stopwords).join(' ');
         const query2=query1.toLowerCase();
 
         //for Crawler collection in the database
         //search for the query in the value inside the Content field
 
-        const foundDocuments=await database.collection("Crawler").find({Content:{$regex:`${query2}`}}).toArray();
+        //*****************************************Local*******************************************//
+        const foundDocuments = exportedCrawler.filter((document) => {
+            const regex = new RegExp(query2, 'i'); // Case-insensitive regular expression
+            return regex.test(document.Content);
+        });
+        //*****************************************Remote in mongodb*******************************************//
+        //const foundDocuments=await database.collection("Crawler").find({Content:{$regex:`${query2}`}}).toArray();
+    
         if (foundDocuments.length==0){
             console.log('No results found');
             return res.status(200).json({message:'No results found for this query'});
@@ -255,7 +284,12 @@ app.get('/search',async (req,res)=>{
         // if the word is found, push the FoundInDocs field array elements to the foundDocuments array
         // access the database
         for(let i=0;i<finalQueryWords.length;i++){
-            const foundWord=await database.collection("Indexer").find({Word:finalQueryWords[i]}).toArray();
+
+            //*****************************************Local*******************************************//
+            const foundWord = exportedIndexer.filter(item => item.Word === finalQueryWords[i]);
+            //*****************************************Remote in mongodb*******************************************//
+            //const foundWord=await database.collection("Indexer").find({Word:finalQueryWords[i]}).toArray();
+
             // console.log(foundWord);
 
             
@@ -299,7 +333,13 @@ app.get('/search',async (req,res)=>{
             info_object.word=foundDocuments[i].word;
             info_object.url=foundDocuments[i].URL;;
             //search for the URL in the database
-            const foundDocument=await database.collection("Crawler").findOne({URL:foundDocuments[i].URL});
+
+            //*****************************************Local*******************************************//
+            const foundDocument = exportedCrawler.find(item => item.URL === foundDocuments[i].URL);
+            //*****************************************Remote in mongodb*******************************************//
+            //const foundDocument=await database.collection("Crawler").findOne({URL:foundDocuments[i].URL});
+
+
             //the found document will contain the URL, Title, and Content fields
             info_object.title=foundDocument.Title;
             info_object.content=foundDocument.Content;
@@ -324,7 +364,13 @@ app.get('/search',async (req,res)=>{
         //descending order
         // the highest weightedSum will be the first element in the array
         info_array.sort((a,b)=>b.weightedSum-a.weightedSum);
-        //console.log(info_array);
+        // console.log(info_array);
+
+        //see if any link is repeated
+        //if yes, keep the one with the highest weightedSum
+        info_array=lodash.uniqBy(info_array,'url');
+        // console.log(info_array);
+
 
         ///////////////////////////////////////////////////////////////Return the results///////////////////////////////////////////////
         //initializing the response object
@@ -349,6 +395,7 @@ app.get('/search',async (req,res)=>{
         for(let i=0;i<results.length;i++)
         {
             var tempObject={};
+            tempObject.Word=results[i].word;
             tempObject.URL=results[i].url;
             tempObject.Title=results[i].title;
             const index=results[i].content.indexOf(results[i].word);
