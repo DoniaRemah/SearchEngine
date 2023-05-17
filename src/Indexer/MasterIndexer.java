@@ -1,3 +1,5 @@
+package Indexer;
+
 import DatabaseManagement.DBManager;
 import org.bson.Document;
 
@@ -47,7 +49,7 @@ public class MasterIndexer {
         String urlString="";
         try {
             // Specify the URL of the HTML page
-            urlString = "https://www.britannica.com/art/perfume";
+            urlString = "https://ihtusa.com/what-are-the-benefits-and-importance-of-sports-in-education/#:~:text=Sport%20is%20good%20for%20your,a%20positive%20outlook%20on%20life.";
             URL url = new URL(urlString);
 
             // Open a connection to the URL
@@ -71,7 +73,8 @@ public class MasterIndexer {
 
         crawlerDocs.add(testdoc);
 
-        // END OF TEST
+        ////////////////////////////////////////// END OF TEST
+
         if (number_threads > actualCrawlerDocsSize.intValue()){
             number_threads = actualCrawlerDocsSize.intValue();
         }

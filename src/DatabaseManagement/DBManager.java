@@ -41,7 +41,6 @@ public class DBManager {
     /**
      *  Get all Documents from Crawler Collection
      */
-    // TODO Add Title Field
     public List<Document> retrieveCrawlerDocuments() {
 
         MongoCollection<Document> collection = database.getCollection("WebCrawler");
@@ -65,7 +64,6 @@ public class DBManager {
         Document document = new Document("URL", URL).append("Title",title).append("HTMLDoc", htmlDocString);
         // Inserting document into the collection
         collection.insertOne(document);
-        System.out.println("Document inserted successfully");
         System.out.println("Crawler Document Inserted successfully"+ URL);
     }
 
@@ -198,7 +196,7 @@ public class DBManager {
         if (docsListToBeInserted.size() != 0){
             collection.insertMany(docsListToBeInserted);
         }
-        System.out.println("Inserted Indexer Documents into Indexer Collection");
+        System.out.println("Inserted IndexerDocuments into Indexer Collection");
     }
 
     ///////////////////////////////////////// RANKER REQUESTS
