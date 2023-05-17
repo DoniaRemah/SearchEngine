@@ -1,5 +1,6 @@
 package DatabaseManagement;
 
+import Crawler.PageDocument;
 import com.mongodb.MongoClientURI;
 import com.mongodb.MongoClient;
 import com.mongodb.bulk.BulkWriteResult;
@@ -67,6 +68,29 @@ public class DBManager {
         // Inserting document into the collection
         collection.insertOne(document);
         System.out.println("Crawler Document Inserted successfully" + URL);
+
+    }
+
+    public void insertManyCrawlerDocument(HashMap<String, PageDocument> myMap) {
+
+        List<Document> FinalCrawlerDocs = new ArrayList<>();
+
+        MongoCollection<Document> collection = database.getCollection("WebCrawler");
+        for(String URL:myMap.keySet()){
+            PageDocument currentdoc = myMap.get(URL);
+            String title = currentdoc.getTitle();
+            String content = currentdoc.getHtmlDoc();
+            List<String> PointsTo = currentdoc.getPointsTo();
+            Document document = new Document("URL", URL).append("Title", title).append("Content", content).append("PointsT0", PointsTo);
+            FinalCrawlerDocs.add(document);
+        }
+
+
+        // Inserting document into the collection
+        if (FinalCrawlerDocs.size() != 0){
+            collection.insertMany(FinalCrawlerDocs);
+        }
+        System.out.println("Crawler Documents Inserted successfully");
 
     }
 

@@ -45,8 +45,6 @@ public class WebCrawler implements Runnable {
 
     public static Vector<String> disallowed_URLs= new Vector<String>();
 
-    public static DBManager dbManager = new DBManager();
-
     private static List<String> seeds;
     public static  Queue<String> linksToCrawl = new LinkedList<>();
 
@@ -92,7 +90,7 @@ public class WebCrawler implements Runnable {
     @Override
     public void run() {
         //in the run we want to crawl as each thread will start crawling process
-        System.out.println("I am thread"+Thread.currentThread().getName());
+       // System.out.println("I am thread"+Thread.currentThread().getName());
         crawl();
     }
     //-----------------------------------------------------------------------------------------------------
@@ -171,14 +169,14 @@ public class WebCrawler implements Runnable {
         // Loop until there are no more links to crawl or the maximum number of crawled pages is reached
         while (currentCrawledPages.get() < MAX_CRAWLED_PAGES && !isEmpty) {
 
-            currentCrawledPages.incrementAndGet();
-
             String url="";
             if (linksToCrawl != null){
                 synchronized (linksToCrawl) {
                     url = linksToCrawl.poll();
+                    currentCrawledPages.incrementAndGet();
                 }
             }
+
             //note that the url we got is already normalized as linkstoCRawl has normalzied links
 
             if(url==null){
@@ -199,7 +197,7 @@ public class WebCrawler implements Runnable {
                     }
                 }
             }
-            System.out.println("is disallwed? " + isDisallowed);
+//            System.out.println("is disallwed? " + isDisallowed);
             if(isDisallowed){
                 //skip
                 currentCrawledPages.decrementAndGet();
@@ -219,7 +217,7 @@ public class WebCrawler implements Runnable {
                     }
                 }
             }
-            System.out.println("is visited before? " + isvisited);
+//            System.out.println("is visited before? " + isvisited);
             if (isvisited) {
                 //skip
                 currentCrawledPages.decrementAndGet();
@@ -243,6 +241,7 @@ public class WebCrawler implements Runnable {
                 try {
                     ReadRobotTxt(roboturl,url);
                 } catch (MalformedURLException e) {
+                    //currentCrawledPages.decrementAndGet();
                     throw new RuntimeException(e);
                 }
             }
@@ -265,6 +264,7 @@ public class WebCrawler implements Runnable {
                 ExtractLinks(htmlDoc);
 
             } catch (IOException e) {
+                //currentCrawledPages.decrementAndGet();
                 throw new RuntimeException(e);
             }
 
@@ -293,7 +293,6 @@ public class WebCrawler implements Runnable {
         }
 
         System.out.println("Total crawled pages:  " + currentCrawledPages);
-        //dbManager.close();
 
 
     }
@@ -460,11 +459,6 @@ public class WebCrawler implements Runnable {
                     PageDocument myNewPage = new PageDocument(htmlDoc.get("HTMLDoc").toString(), title);
                     myNewPage.setPointsTo(LinkPointsTo);
                     DocumentsAndUrlsWithPrio.put(url,myNewPage );
-
-                    synchronized (dbManager){
-                        List<String> newList = myNewPage.getPointsTo();
-                        dbManager.insertCrawlerDocument(myNewPage.getHtmlDoc(),url,myNewPage.getTitle(),newList);
-                    }
 
                 }
             }

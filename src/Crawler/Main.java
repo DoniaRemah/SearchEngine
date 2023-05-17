@@ -1,13 +1,12 @@
 package Crawler;
 
+import DatabaseManagement.DBManager;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
-import java.util.Vector;
+import java.util.*;
 
 public class Main {
     private static List<String> seeds;
@@ -63,7 +62,6 @@ public class Main {
 //        crawlers.add(new WebCrawler(seeds, 6, numberOfThreads));
 
 
-
         for(WebCrawler bot: crawlers){
             Vector<Thread> threads;
             //get thread.join
@@ -75,7 +73,6 @@ public class Main {
                     e.printStackTrace();
                 }
             }
-
         }
         //we want to erase the crawlerState after joining:
         File file = new File("crawlerState.txt");
@@ -84,7 +81,9 @@ public class Main {
         } else {
             System.out.println("Failed to delete the file.");
         }
-
+        DBManager dbManager = new DBManager();
+        dbManager.insertManyCrawlerDocument(WebCrawler.DocumentsAndUrlsWithPrio);
+        dbManager.close();
         long endTime = System.currentTimeMillis();
 
         long executionTime = endTime - startTime;
@@ -92,6 +91,7 @@ public class Main {
         // Convert milliseconds to minutes and seconds
         long minutes = (executionTime / 1000) / 60;
         long seconds = (executionTime / 1000) % 60;
+
 
         // Print the execution time
         System.out.println("Program execution time: " + minutes + " minutes, " + seconds + " seconds");

@@ -16,6 +16,31 @@ const connectioString='mongodb+srv://abouelhadidola:8aWAvyLwc824XSm8@searchengin
 app.use(bodyParser.json());
 app.use(cors());
 
+//TODO: CHANGE ANY "Crawler" COLLECTION TO "WebCrawler"
+
+
+///////////////////////////////trial to access the database files///////////////////////////////////////////
+let exportedCrawler = null;
+    try {
+    const fileContent = fs.readFileSync('./Exports/Crawler.json', 'utf8');
+    exportedCrawler = JSON.parse(fileContent);
+    //console.log(exportedCrawler);
+    } catch (err) {
+    console.error(err);
+    }
+    // console.log(exportedCrawler.length);
+
+let exportedIndexer = null;
+try {
+    const fileContent = fs.readFileSync('./Exports/Indexer.json', 'utf8');
+    exportedIndexer = JSON.parse(fileContent);
+    //console.log(exportedIndexer);
+    } catch (err) {
+    console.error(err);
+    }
+
+    // console.log(exportedIndexer.length);
+
 //Connect to the database
 const client=new mongo.MongoClient(connectioString,{useNewUrlParser:true,useUnifiedTopology:true});
 const connectToDatabase=async()=>{
@@ -61,7 +86,21 @@ app.get('/suggestion',async (req,res)=>{
     //search in the collection called Suggestions
     //return an array of strings as a response
     //finding only the first 8 results as a maximum limit
-    const foundQueries=await database.collection("Suggestions").find({query:{$regex:`^${query}`}}).limit(8).toArray();
+
+    //doesn't handle special characters
+    // const foundQueries=await database.collection("Suggestions").find({query:{$regex:`^${query}`}}).limit(8).toArray();
+
+    //handles special characters
+    function escapeRegExp(string) {
+        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+        const escapedQuery = escapeRegExp(query);
+        const foundQueries = await database
+            .collection("Suggestions")
+            .find({ query: { $regex: `^${escapedQuery}` } })
+            .limit(8)
+            .toArray();
+
     // console.log(foundQueries);
     const response=[];
     foundQueries.forEach(object => {
@@ -135,15 +174,21 @@ app.get('/search',async (req,res)=>{
     //case of phrase search
     if(isPhraseSearch){ 
         //remove stop words
-        const stopWords=fs.readFileSync('StopWords.txt','utf8').split('\r\n');
-        const query1=lodash.difference(query.split(' '),stopWords).join(' ');
-        //lowercase
+        // const stopWords=fs.readFileSync('StopWords.txt','utf8').split('\r\n');
+        const query1=lodash.difference(query.split(' '),stopwords).join(' ');
         const query2=query1.toLowerCase();
 
         //for Crawler collection in the database
         //search for the query in the value inside the Content field
 
-        const foundDocuments=await database.collection("Crawler").find({Content:{$regex:`${query2}`}}).toArray();
+        //*****************************************Local*******************************************//
+        const foundDocuments = exportedCrawler.filter((document) => {
+            const regex = new RegExp(query2, 'i'); // Case-insensitive regular expression
+            return regex.test(document.Content);
+        });
+        //*****************************************Remote in mongodb*******************************************//
+        //const foundDocuments=await database.collection("Crawler").find({Content:{$regex:`${query2}`}}).toArray();
+    
         if (foundDocuments.length==0){
             console.log('No results found');
             return res.status(200).json({message:'No results found for this query'});
@@ -170,10 +215,15 @@ app.get('/search',async (req,res)=>{
             response.pagination.currentPage=page;
             response.pagination.nextPage=page < totalPages ? page + 1 : null,
             response.pagination.previousPage=page > 1 ? page - 1 : null
+            var responseWordsArray=[];
+            responseWordsArray.push(query2);
+            response.Words=responseWordsArray;
 
             //the foundDocuments format is an array of objects
             results.forEach(object => {
                 var tempObject={};
+                //send the phrase after the removal of stop words and lowercase
+                // tempObject.Word=query2;
                 tempObject.URL=object.URL;
                 tempObject.Title=object.Title;
                 //find the index of the query in the content
@@ -255,7 +305,12 @@ app.get('/search',async (req,res)=>{
         // if the word is found, push the FoundInDocs field array elements to the foundDocuments array
         // access the database
         for(let i=0;i<finalQueryWords.length;i++){
-            const foundWord=await database.collection("Indexer").find({Word:finalQueryWords[i]}).toArray();
+
+            //*****************************************Local*******************************************//
+            const foundWord = exportedIndexer.filter(item => item.Word === finalQueryWords[i]);
+            //*****************************************Remote in mongodb*******************************************//
+            //const foundWord=await database.collection("Indexer").find({Word:finalQueryWords[i]}).toArray();
+
             // console.log(foundWord);
 
             
@@ -290,16 +345,21 @@ app.get('/search',async (req,res)=>{
         //will get the rank from the Rank field
 
         //Info about the word, url, title, and content
-        //to be 
         var info_array=[];
         //one loop for crawler to get what we need
         for(let i=0;i<foundDocuments.length;i++)
         {
             var info_object={};
-            info_object.word=foundDocuments[i].word;
+            // info_object.word=foundDocuments[i].word;
             info_object.url=foundDocuments[i].URL;;
             //search for the URL in the database
-            const foundDocument=await database.collection("Crawler").findOne({URL:foundDocuments[i].URL});
+
+            //*****************************************Local*******************************************//
+            const foundDocument = exportedCrawler.find(item => item.URL === foundDocuments[i].URL);
+            //*****************************************Remote in mongodb*******************************************//
+            //const foundDocument=await database.collection("Crawler").findOne({URL:foundDocuments[i].URL});
+
+
             //the found document will contain the URL, Title, and Content fields
             info_object.title=foundDocument.Title;
             info_object.content=foundDocument.Content;
@@ -352,10 +412,12 @@ app.get('/search',async (req,res)=>{
         //search for the URL in the URL field
         //will get the title and the snippet from the content of the document
 
+        response.Words=finalQueryWords;
+
         for(let i=0;i<results.length;i++)
         {
             var tempObject={};
-            tempObject.Word=results[i].word;
+            // tempObject.Word=results[i].word;
             tempObject.URL=results[i].url;
             tempObject.Title=results[i].title;
             const index=results[i].content.indexOf(results[i].word);

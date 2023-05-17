@@ -1,9 +1,9 @@
 import React from "react";
 import classes from "./search.module.css";
 import logo from "../../assets/logo3.svg";
-import { useState } from "react";
+import { useState , useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 export default function Search(props) {
   const navigate = useNavigate();
@@ -13,21 +13,19 @@ export default function Search(props) {
   const handleInputChange = (event) => {
     // console.log(event.target.value);
     setInputValue(event.target.value);
-    // let arr = suggestionList;
-    // arr.push(event.target.value);
-    // setSuggestionList(arr);
-    // getSuggestionList();
+    let check = /^\s*$/.test(event.target.value);
+    if (check) {
+      setSuggestionList([])
+    }
   };
 
   const handleKeyPresssearch = (event) => {
     if (event.key === "Enter") {
-      handleSubmit();
+      let check = /^\s*$/.test(inputValue);
+      if (!check) {
+        handleSubmit();
+      }
     }
-  };
-
-  const handleKeyPresssuggest = (item) => {
-    setInputValue(item);
-    handleSubmit();
   };
 
   const handleSubmit = () => {
@@ -36,20 +34,26 @@ export default function Search(props) {
     navigate("/results/" + inputValue);
   };
 
-
   const getSuggestionList = async () => {
     console.log(
-      "suggest : https://localhost:3000/suggestion?query=" + inputValue
+      "suggest : http://localhost:3001/suggestion?query=" + inputValue
     );
-    try {
-      const request = await axios.get(
-        "https://localhost:3000/suggestion?query=" + inputValue
-      );
-      setSuggestionList(request.data);
-    } catch (err) {
-      console.log("err");
+    let check = /^\s*$/.test(inputValue);
+    if (!check) {
+      try {
+        const request = await axios.get(
+          "http://localhost:3001/suggestion?query=" + inputValue
+        );
+        setSuggestionList(request.data);
+      } catch (err) {
+        console.log("err");
+      }
     }
   };
+
+  useEffect(() => {
+    getSuggestionList();
+  }, [inputValue]);
 
   return (
     <div className={classes.container}>
@@ -60,7 +64,9 @@ export default function Search(props) {
         {" "}
         <div className={classes.searchContainer}>
           <input
-            className={suggestionList.length !== 0 ? classes.input : classes.ninput}
+            className={
+              suggestionList.length !== 0 ? classes.input : classes.ninput
+            }
             type="text"
             value={inputValue}
             onChange={handleInputChange}
@@ -71,11 +77,9 @@ export default function Search(props) {
         {suggestionList.length !== 0 && (
           <div className={classes.suggest}>
             {suggestionList.map((item, index) => (
-              <div
-                className={classes.suggestitem}
-                onClick={() => handleKeyPresssuggest(item)}>
-                {item}
-              </div>
+              <Link to={`/results/${item}`}>
+                <div className={classes.suggestitem}>{item}</div>
+              </Link>
             ))}
           </div>
         )}
