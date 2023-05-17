@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="googlecode.htmlcompressor" type="repository">
+    <properties maven-id="com.googlecode.htmlcompressor:htmlcompressor:1.5.2" />
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/googlecode/htmlcompressor/htmlcompressor/1.5.2/htmlcompressor-1.5.2.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
