@@ -56,6 +56,7 @@ app.get('/test',async (req,res)=>{
 app.get('/suggestion',async (req,res)=>{
     //get the query from the request
     const query=req.query.query;
+    // console.log(query);
     //search the database for the previous queries that start with the new query
     //search in the collection called Suggestions
     //return an array of strings as a response
