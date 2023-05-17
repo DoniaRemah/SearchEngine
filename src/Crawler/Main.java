@@ -3,6 +3,7 @@ package Crawler;
 import DatabaseManagement.DBManager;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
@@ -73,6 +74,13 @@ public class Main {
                 }
             }
         }
+        //we want to erase the crawlerState after joining:
+//        File file = new File("crawlerState.txt");
+//        if (file.delete()) {
+//            System.out.println("File deleted successfully.");
+//        } else {
+//            System.out.println("Failed to delete the file.");
+//        }
         DBManager dbManager = new DBManager();
         dbManager.insertManyCrawlerDocument(WebCrawler.DocumentsAndUrlsWithPrio);
         dbManager.close();

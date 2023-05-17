@@ -420,7 +420,18 @@ app.get('/search',async (req,res)=>{
             // tempObject.Word=results[i].word;
             tempObject.URL=results[i].url;
             tempObject.Title=results[i].title;
-            const index=results[i].content.indexOf(results[i].word);
+            //const index=results[i].content.indexOf(results[i].word);
+            const content = results[i].content;
+            const word = results[i].word;
+            
+            const regex = new RegExp(`\\b${word}\\w*`);
+            const match = content.match(regex);
+            
+            let matchedString = null;
+            if (match) {
+                matchedString = match[0];
+            }
+            const index = content.indexOf(matchedString);
             //take a snippet around the query
             //the snippet is 400 characters long
             //the snippet is centered around the query
