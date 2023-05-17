@@ -29,9 +29,11 @@ public class Main {
 
 
     public static void main(String[] args) {
+
+        long startTime = System.currentTimeMillis();
+
         seeds = readSeeds("src/Crawler/seed.txt");
 
-        // TODO REMOVE THIS
         // Print the seeds for verification
         for (String seed : seeds) {
             System.out.println("Seeds for the crawler:"+seed);
@@ -74,6 +76,17 @@ public class Main {
             }
 
         }
+
+        long endTime = System.currentTimeMillis();
+
+        long executionTime = endTime - startTime;
+
+        // Convert milliseconds to minutes and seconds
+        long minutes = (executionTime / 1000) / 60;
+        long seconds = (executionTime / 1000) % 60;
+
+        // Print the execution time
+        System.out.println("Program execution time: " + minutes + " minutes, " + seconds + " seconds");
 
     }
 }
