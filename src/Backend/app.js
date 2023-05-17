@@ -215,8 +215,9 @@ app.get('/search',async (req,res)=>{
             response.pagination.currentPage=page;
             response.pagination.nextPage=page < totalPages ? page + 1 : null,
             response.pagination.previousPage=page > 1 ? page - 1 : null
-
-            response.Word=query2;
+            var responseWordsArray=[];
+            responseWordsArray.push(query2);
+            response.Words=responseWordsArray;
 
             //the foundDocuments format is an array of objects
             results.forEach(object => {
