@@ -1,7 +1,7 @@
 import React from "react";
 import classes from "./search.module.css";
 import logo from "../../assets/logo3.svg";
-import { useState } from "react";
+import { useState , useEffect } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 
@@ -14,8 +14,8 @@ export default function Search(props) {
     // console.log(event.target.value);
     setInputValue(event.target.value);
     let check = /^\s*$/.test(event.target.value);
-    if (!check) {
-      getSuggestionList();
+    if (check) {
+      setSuggestionList([])
     }
   };
 
@@ -38,15 +38,22 @@ export default function Search(props) {
     console.log(
       "suggest : http://localhost:3001/suggestion?query=" + inputValue
     );
-    try {
-      const request = await axios.get(
-        "http://localhost:3001/suggestion?query=" + inputValue
-      );
-      setSuggestionList(request.data);
-    } catch (err) {
-      console.log("err");
+    let check = /^\s*$/.test(inputValue);
+    if (!check) {
+      try {
+        const request = await axios.get(
+          "http://localhost:3001/suggestion?query=" + inputValue
+        );
+        setSuggestionList(request.data);
+      } catch (err) {
+        console.log("err");
+      }
     }
   };
+
+  useEffect(() => {
+    getSuggestionList();
+  }, [inputValue]);
 
   return (
     <div className={classes.container}>

@@ -12,45 +12,9 @@ export default function Results(props) {
   const navigate = useNavigate();
   const [inputValue, setInputValue] = useState(id);
   const [page, setPage] = useState(1);
-  const [suggestValue, setSuggestValue] = useState("");
+  const [suggestValue, setSuggestValue] = useState(id);
   const [suggestionList, setSuggestionList] = useState([]);
   const [searchList, setSearchList] = useState([]);
-  //   {
-  //   result: [
-  //     {
-  //       URL: "https://www.southsideblooms.com/how-flowers-are-important-in-our-life/",
-  //       Title: "How flowers are important in our life? - Southside Blooms",
-  //       Content:
-  //         "How flowers are important in our life? - Southside Blooms Skip to content Flower delivery Chicago Shop Our Story Volunteer Events Donate Weddings More Menu Toggle Press and Media Career Blog Contact us Login Main Menu Flower delivery Chicago Shop Our Story Volunteer Events Donate Weddings More Menu Toggle Press and Media Career Blog Contact us Login How flowers are important in our life? 1 Comment / Uncategorized / By Quilen Blackwell What is the importance of flowers in our life? Flowers not only add color, texture, and biodiversity to gardens and environments, they are also an important structure for p",
-  //     },
-  //     {
-  //       URL: "https://www.southsideblooms.com/how-flowers-are-important-in-our-life/",
-  //       Title: "How flowers are important in our life? - Southside Blooms",
-  //       Content:
-  //         "How flowers are important in our life? - Southside Blooms Skip to content Flower delivery Chicago Shop Our Story Volunteer Events Donate Weddings More Menu Toggle Press and Media Career Blog Contact us Login Main Menu Flower delivery Chicago Shop Our Story Volunteer Events Donate Weddings More Menu Toggle Press and Media Career Blog Contact us Login How flowers are important in our life? 1 Comment / Uncategorized / ",
-  //     },
-  //     {
-  //       URL: "https://www.britannica.com/art/perfume",
-  //       Title: "Perfume | Britannica",
-  //       Content:
-  //         "hy & Religion Politics, Law & Government Science Sports & Recreation Technology Visual Arts World History On This Day in History Quizzes Podcasts Dictionary Biographies Summaries Top Questions Infographics Demystified Lists #WTFact Companions Image Galleries Spotlight The Forum One Good Fact Entertainment & Pop Culture Geography & Travel Health & Medicine Lifestyles & Social Issues Literature Phil",
-  //     },
-  //     {
-  //       URL: "https://www.recipegirl.com/how-to-make-iced-coffee/",
-  //       Title: "How to Make Iced Coffee - Recipe Girl",
-  //       Content:
-  //         " caffeine needed. My body is hard-wired to have an abundance of natural energy from the moment I wake up. I guess I’m lucky that way. I do love the flavor of coffee though… coffee candies and coffee ice cream and even those foo foo frozen coffee drinks that contain your total allotted calorie consumption in just a dozen sips. That’s why on one rather sweltering afternoon recently, I grabbed my husband’s mug o’ coffee that had been sitting untouched on the counter all day long, and I made myself a rather delicious version of Iced Coffee. How do You Make Iced Coffee? You’ll need a tall glass and a spoon long enough to reach the bottom of that glass. Fill that glass full to the rim with ice. If you really want to get serious about your iced coffee, you can make ice cubes out of coffee too. Th",
-  //     },
-  //   ],
-  //   pagination: {
-  //     totalResults: 4,
-  //     totalPages: 5,
-  //     currentPage: 1,
-  //     nextPage: 2,
-  //     previousPage: null,
-  //   },
-  //   time: 0.448,
-  // }
   const [loading, setLoading] = useState(true);
 
   const handleInputChange = (event) => {
@@ -63,6 +27,7 @@ export default function Results(props) {
       let check = /^\s*$/.test(suggestValue);
       if (suggestValue !== "" && !check) {
         setInputValue(suggestValue);
+        setPage(1);
         navigate("/results/" + suggestValue);
       }
     }
@@ -71,7 +36,8 @@ export default function Results(props) {
   const handleKeyPresssuggest = (item) => {
     // setInputValue(item);
     console.log(item);
-    setInputValue(suggestValue);
+    setInputValue(item);
+    setPage(1);
     navigate("/results/" + item);
   };
 
@@ -89,6 +55,8 @@ export default function Results(props) {
       } catch (err) {
         console.log("err");
       }
+    } else {
+      setSuggestionList([]);
     }
   };
 
@@ -99,7 +67,7 @@ export default function Results(props) {
         inputValue +
         "&page=" +
         page +
-        "&limit=1"
+        "&limit=10"
     );
 
     let check = /^\s*$/.test(inputValue);
@@ -110,7 +78,7 @@ export default function Results(props) {
             inputValue +
             "&page=" +
             page +
-            "&limit=1"
+            "&limit=10"
         );
         setSearchList(request.data);
         setLoading(false);
@@ -141,7 +109,7 @@ export default function Results(props) {
                 suggestionList.length !== 0 ? classes.input : classes.ninput
               }
               type="text"
-              defaultValue={inputValue}
+              Value={inputValue}
               // value={suggestValue}
               onChange={handleInputChange}
               onKeyPress={handleKeyPresssearch}
@@ -151,9 +119,12 @@ export default function Results(props) {
           {suggestionList.length !== 0 && (
             <div className={classes.suggest}>
               {suggestionList.map((item, index) => (
-                <Link key={item + index} to={`/results/${item}`}>
-                  <div className={classes.suggestitem}>{item}</div>
-                </Link>
+                <div
+                  key={item + index}
+                  onClick={() => handleKeyPresssuggest(item)}
+                  className={classes.suggestitem}>
+                  {item}
+                </div>
               ))}
             </div>
           )}
@@ -179,7 +150,7 @@ export default function Results(props) {
                 </div>
               ) : null}
               {searchList.result.map((item, index) =>
-                page + index < searchList.pagination.totalPages ? (
+                page + index <= searchList.pagination.totalPages ? (
                   <div
                     onClick={() => setPage(page + index)}
                     className={classes.page}>
