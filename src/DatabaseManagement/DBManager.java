@@ -2,11 +2,12 @@ package DatabaseManagement;
 
 import com.mongodb.MongoClientURI;
 import com.mongodb.MongoClient;
+import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.model.*;
 import org.bson.Document;
 
 import java.util.ArrayList;
@@ -95,7 +96,7 @@ public class DBManager {
     public void insertIndexerDocs(Hashtable<String, List<Document>> IndexerTable) {
 
         MongoCollection<Document> collection = database.getCollection("Indexer");
-
+        List<Document> bulkUpdates = new ArrayList<>();
         List<Document> docsListToBeInserted = new ArrayList<Document>();
 
         // Looping over every word.
@@ -140,7 +141,6 @@ public class DBManager {
             }
             else
             {
-                List<Document> bulkUpdates = new ArrayList<>();
                 // Looping over every document associated with the word.
                 for (int i = 0; i < IndexerTable.get(word).size(); i++) {
 
@@ -157,28 +157,57 @@ public class DBManager {
                         // CHECKING THAT URL WASN'T ADDED BEFORE
 
                         // Retrieving a certain url associated with the word already existing in database
-                        Document query = new Document("Word", word).append("FoundInDocs.URL", url);
-                        Document projection = new Document("FoundInDocs", 1);
-                        Document result = collection.find(query).projection(projection).first();
+//                        Document query = new Document("Word", word).append("FoundInDocs.URL", url);
+//                        Document projection = new Document("FoundInDocs", 1);
+//                        Document result = collection.find(query).projection(projection).first();
 
                         // URL Hasn't been added before.
-                        if (result == null) {
+//                        if (result == null) {
+//
+//                            // Appending new url document associated to the word in db
+////                            WordDocProperties.append("URL", url);
+////                            WordDocProperties.append("Title", title);
+////                            WordDocProperties.append("IDF_TF", IDF_TF);
+//
+//
+//                            // Adding the update operation to the bulk updates list
+//                            collection.updateOne(
+//                                    new Document("Word", word),
+//                                    new Document("$push", new Document("FoundInDocs", WordDocProperties))
+//                            );
+//
+//                        }
 
-                            // Appending new url document associated to the word in db
-                            WordDocProperties.append("URL", url);
-                            WordDocProperties.append("Title", title);
-                            WordDocProperties.append("IDF_TF", IDF_TF);
+                    WordDocProperties.append("URL", url);
+                    WordDocProperties.append("Title", title);
+                    WordDocProperties.append("IDF_TF", IDF_TF);
 
+                    Document filter = new Document("Word", word)
+                            .append("FoundInDocs", new Document("$not", new Document("$elemMatch",
+                                    new Document("URL", url))));
 
-                            // Adding the update operation to the bulk updates list
-                            bulkUpdates.add(new Document("Word", word).append("$push", new Document("FoundInDocs", WordDocProperties)));
-                        }
-                }
+                    Document update = new Document("$push", new Document("FoundInDocs", WordDocProperties));
 
-                if (!bulkUpdates.isEmpty()) {
-                    collection.updateMany(new Document(), bulkUpdates);
+                    bulkUpdates.add(new Document("$set", update).append("$filter", filter));
                 }
             }
+        }
+
+        if (!bulkUpdates.isEmpty()) {
+            List<WriteModel<Document>> bulkOperations = new ArrayList<>();
+
+            for (Document update : bulkUpdates) {
+                Document filter = update.get("$filter", Document.class);
+                Document updateData = update.get("$set", Document.class);
+                UpdateOneModel<Document> updateModel = new UpdateOneModel<>(filter, updateData);
+                bulkOperations.add(updateModel);
+            }
+
+            BulkWriteOptions options = new BulkWriteOptions().ordered(false);
+            BulkWriteResult bulkWriteResult = collection.bulkWrite(bulkOperations, options);
+//                    int modifiedCount = bulkWriteResult.getModifiedCount();
+
+//                    System.out.println(bulkWriteResult.wasAcknowledged());
         }
 
         if (docsListToBeInserted.size() != 0){
