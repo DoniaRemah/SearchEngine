@@ -3,8 +3,10 @@ import classes from "./search.module.css";
 import logo from "../../assets/logo3.svg";
 import { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-export default function Search() {
+export default function Search(props) {
+    const navigate = useNavigate();
   const [inputValue, setInputValue] = useState("");
   const [suggestionList, setSuggestionList] = useState([]);
 
@@ -28,21 +30,8 @@ export default function Search() {
   const handleSubmit = () => {
     // Handle the submission logic here
     // console.log("Form submitted with value:", inputValue);
+    props.setSearchValue(inputValue)
     // getSearchResult();
-  };
-
-  const getSuggestionList = async () => {
-    console.log(
-      "suggest : https://localhost:3000/suggestion?query=" + inputValue
-    );
-    try {
-      const request = await axios.get(
-        "https://localhost:3000/suggestion?query=" + inputValue
-      );
-      setSuggestionList(request.data);
-    } catch (err) {
-      console.log("err");
-    }
   };
 
   const getSearchResult = async () => {
@@ -52,6 +41,21 @@ export default function Search() {
     try {
       const request = await axios.get(
         "https://localhost:3000/search?query=" + inputValue + "&limit=10"
+      );
+      props.setResponse(request.data);
+      navigate("/results");
+    } catch (err) {
+      console.log("err");
+    }
+  };
+
+  const getSuggestionList = async () => {
+    console.log(
+      "suggest : https://localhost:3000/suggestion?query=" + inputValue
+    );
+    try {
+      const request = await axios.get(
+        "https://localhost:3000/suggestion?query=" + inputValue
       );
       setSuggestionList(request.data);
     } catch (err) {
