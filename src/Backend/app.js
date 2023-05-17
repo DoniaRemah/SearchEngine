@@ -16,6 +16,8 @@ const connectioString='mongodb+srv://abouelhadidola:8aWAvyLwc824XSm8@searchengin
 app.use(bodyParser.json());
 app.use(cors());
 
+//TODO: CHANGE ANY "Crawler" COLLECTION TO "WebCrawler"
+
 
 ///////////////////////////////trial to access the database files///////////////////////////////////////////
 let exportedCrawler = null;
