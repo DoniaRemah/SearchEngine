@@ -8,14 +8,6 @@ import { Link, useParams, useNavigate } from "react-router-dom";
 import SingleCard from "./SingleCard";
 
 export default function Results(props) {
-  const arrow = (
-    <svg x="0" y="0" viewBox="0 0 24 24">
-      <path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
-        d="M13.8 7l-5 5 5 5 1.4-1.4-3.6-3.6 3.6-3.6z"></path>
-    </svg>
-  );
   let { id } = useParams();
   const navigate = useNavigate();
   const [inputValue, setInputValue] = useState(id);
@@ -82,61 +74,58 @@ export default function Results(props) {
     navigate("/results/" + item);
   };
 
-  const nextPage = () => {
-    console.log("we are in next page");
+  const getSuggestionList = async () => {
+    console.log(
+      "suggest : https://localhost:3000/suggestion?query=" + suggestValue
+    );
+    let check = /^\s*$/.test(suggestValue);
+    if (!check) {
+      try {
+        const request = await axios.get(
+          "https://localhost:3000/suggestion?query=" + suggestValue
+        );
+        setSuggestionList(request.data);
+      } catch (err) {
+        console.log("err");
+      }
+    }
   };
 
-  // const getSuggestionList = async () => {
-  //   console.log(
-  //     "suggest : https://localhost:3000/suggestion?query=" + suggestValue
-  //   );
-  //   let check = /^\s*$/.test(suggestValue);
-  //   if (!check) {
-  //     try {
-  //       const request = await axios.get(
-  //         "https://localhost:3000/suggestion?query=" + suggestValue
-  //       );
-  //       setSuggestionList(request.data);
-  //     } catch (err) {
-  //       console.log("err");
-  //     }
-  //   }
-  // };
+  const getSearchResult = async () => {
+    // console.log(inputValue);
+    console.log(
+      "search : https://localhost:3000/search?query=" +
+        inputValue +
+        "&page=" +
+        page +
+        "&limit=10"
+    );
 
-  // const getSearchResult = async () => {
-  //   // console.log(inputValue);
-  //   console.log(
-  //     "search : https://localhost:3000/search?query=" +
-  //       inputValue +
-  //       "&page=" +
-  //       page +
-  //       "&limit=10"
-  //   );
+    let check = /^\s*$/.test(inputValue);
+    if (!check) {
+      try {
+        const request = await axios.get(
+          "https://localhost:3000/search?query=" +
+            inputValue +
+            "&page=" +
+            page +
+            "&limit=10"
+        );
+        setSearchList(request.data);
+        setLoading(false);
+      } catch (err) {
+        console.log("err");
+      }
+    }
+  };
 
-  //   let check = /^\s*$/.test(inputValue);
-  //   if (!check) {
-  //     try {
-  //       const request = await axios.get(
-  //         "https://localhost:3000/search?query=" +
-  //           inputValue +
-  //           "&page=" +
-  //           page +
-  //           "&limit=10"
-  //       );
-  //       setLoading(false);
-  //     } catch (err) {
-  //       console.log("err");
-  //     }
-  //   }
-  // };
+  useEffect(() => {
+    getSearchResult();
+  }, [inputValue, page]);
 
-  // useEffect(() => {
-  //   getSearchResult();
-  // }, [inputValue, page]);
-
-  // useEffect(() => {
-  //   getSuggestionList();
-  // }, [suggestValue]);
+  useEffect(() => {
+    getSuggestionList();
+  }, [suggestValue]);
 
   return (
     <div className={classes.container}>
@@ -182,9 +171,26 @@ export default function Results(props) {
                 <SingleCard key={index} item={item} />
               ))}
             </div>
-            <div className={classes.icons}>
-              <span onClick={() => nextPage}>{arrow}</span>
-              <span onClick={nextPage}>{arrow}</span>
+            <div className={classes.pagination}>
+              {searchList.pagination.previousPage !== null ? (
+                <div onClick={() => setPage(page - 1)} className={classes.page}>
+                  Previous
+                </div>
+              ) : null}
+              {searchList.result.map((item, index) =>
+                page + index < searchList.pagination.totalPages ? (
+                  <div
+                    onClick={() => setPage(page + index)}
+                    className={classes.page}>
+                    {page + index}
+                  </div>
+                ) : null
+              )}
+              {searchList.pagination.nextPage !== null ? (
+                <div onClick={() => setPage(page + 1)} className={classes.page}>
+                  Next
+                </div>
+              ) : null}
             </div>
           </div>
         )}
