@@ -97,7 +97,7 @@ public class PopularityRanker {
     }
 
 
-    // TODO REMOVE THIS MAIN (NOT NEEDED)
+    // TODO REMOVE THIS MAIN (TESTING PURPOSES - REMOVE WHEN CRAWLER IS FINISHED)
     public static void main(String[] args) {
         PopularityRanker ranker = new PopularityRanker(2);
     }

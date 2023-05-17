@@ -72,8 +72,8 @@ public class Indexer implements Runnable{
         String unEditedParsedDoc = parsedHtmlDoc.text();
 
         // Removing all line breaks, any characters apart from letters and Whitespace.
-        docContent = docContent.replaceAll("\n", "")
-                .replaceAll("[^a-zA-Z ]", "")
+        docContent = docContent.replaceAll("\n", " ")
+                .replaceAll("[^a-zA-Z ]", " ")
                 .toLowerCase();
 
         // Removing all Stop words.
