@@ -12,6 +12,6 @@
     "snowball-stemmers": "^0.6.0"
   },
   "scripts": {
-    "start": "nodemon src/Server.js"
+    "start": "nodemon Server.js"
   }
 }
