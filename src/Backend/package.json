@@ -9,8 +9,7 @@
     "mongodb": "^5.5.0",
     "mongoose": "^7.1.1",
     "nodemon": "^2.0.22",
-    "snowball-stemmers": "^0.6.0",
-    "vercel": "^29.3.2"
+    "snowball-stemmers": "^0.6.0"
   },
   "scripts": {
     "start": "nodemon app.js"
@@ -20,6 +19,5 @@
   "main": "app.js",
   "author": "Ola",
   "license": "ISC",
-  "devDependencies": {},
   "description": ""
 }

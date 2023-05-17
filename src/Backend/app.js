@@ -8,9 +8,9 @@ const lodash=require('lodash');
 const fs=require('fs');
 // const { EnglishStemmer } = require('snowball-stemmers');
 const Snowball= require('snowball-stemmers');
-const e = require('express');
+const stopwords=require('./StopWords.js')
 
-const PORT=3000;
+const PORT=3001;
 const connectioString='mongodb+srv://abouelhadidola:8aWAvyLwc824XSm8@searchengine.uwkyb5b.mongodb.net/?retryWrites=true&w=majority';
 
 app.use(bodyParser.json());
@@ -226,12 +226,9 @@ app.get('/search',async (req,res)=>{
         //2- Remove all the stop words
         //the stop words are stored in a file called StopWords.txt
         //read the file, one word per line
-        const stopWords=fs.readFileSync('StopWords.txt','utf8').split('\r\n');
-        // console.log(stopWords);
+        // const stopWords=fs.readFileSync('StopWords.txt','utf8').split('\r\n');
         //remove the stop words from the query
-        const query2=lodash.difference(query1.split(' '),stopWords).join(' ');
-
-
+        const query2=lodash.difference(query1.split(' '),stopwords).join(' ');
         //3- lowercase all the words
         const query3=query2.toLowerCase();
 
