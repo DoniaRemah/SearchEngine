@@ -60,8 +60,8 @@
 }
 
 .ninput {
-    border-radius: 22px;
-    box-shadow: 0 1px 6px 0 #20212447;
+  border-radius: 22px;
+  box-shadow: 0 1px 6px 0 #20212447;
 }
 
 .suggest {
@@ -76,17 +76,17 @@
 }
 
 .search:focus-within .input {
-    border-radius: 22px 22px 0 0;
-    box-shadow: 0 0px 5px 0 #20212447;
-  }
+  border-radius: 22px 22px 0 0;
+  box-shadow: 0 0px 5px 0 #20212447;
+}
 
 .search:focus-within .suggest {
   display: unset; /* Display the suggest div on hover of search input or the suggest div itself */
 }
 
-
 .suggestitem {
   padding: 0.5rem 3rem;
+  cursor: pointer;
 }
 
 .suggestitem:hover {
@@ -99,7 +99,7 @@
     width: 80%;
   }
 
-  .logoContainer img{
+  .logoContainer img {
     width: 100%;
   }
   .search {
