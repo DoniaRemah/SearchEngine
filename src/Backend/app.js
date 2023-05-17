@@ -215,10 +215,15 @@ app.get('/search',async (req,res)=>{
             response.pagination.currentPage=page;
             response.pagination.nextPage=page < totalPages ? page + 1 : null,
             response.pagination.previousPage=page > 1 ? page - 1 : null
+            var responseWordsArray=[];
+            responseWordsArray.push(query2);
+            response.Words=responseWordsArray;
 
             //the foundDocuments format is an array of objects
             results.forEach(object => {
                 var tempObject={};
+                //send the phrase after the removal of stop words and lowercase
+                // tempObject.Word=query2;
                 tempObject.URL=object.URL;
                 tempObject.Title=object.Title;
                 //find the index of the query in the content
@@ -340,13 +345,12 @@ app.get('/search',async (req,res)=>{
         //will get the rank from the Rank field
 
         //Info about the word, url, title, and content
-        //to be 
         var info_array=[];
         //one loop for crawler to get what we need
         for(let i=0;i<foundDocuments.length;i++)
         {
             var info_object={};
-            info_object.word=foundDocuments[i].word;
+            // info_object.word=foundDocuments[i].word;
             info_object.url=foundDocuments[i].URL;;
             //search for the URL in the database
 
@@ -408,10 +412,12 @@ app.get('/search',async (req,res)=>{
         //search for the URL in the URL field
         //will get the title and the snippet from the content of the document
 
+        response.Words=finalQueryWords;
+
         for(let i=0;i<results.length;i++)
         {
             var tempObject={};
-            tempObject.Word=results[i].word;
+            // tempObject.Word=results[i].word;
             tempObject.URL=results[i].url;
             tempObject.Title=results[i].title;
             const index=results[i].content.indexOf(results[i].word);
