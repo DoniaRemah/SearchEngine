@@ -1,8 +1,12 @@
-
 import "./App.css";
+import Search from "./Pages/Search/Search";
 
 function App() {
-  return <div className="App">Mord Engine</div>;
+  return (
+    <div className="App">
+      <Search />
+    </div>
+  );
 }
 
 export default App;
