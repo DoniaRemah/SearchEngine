@@ -36,11 +36,11 @@ export default function Search(props) {
 
   const getSuggestionList = async () => {
     console.log(
-      "suggest : https://localhost:3001/suggestion?query=" + inputValue
+      "suggest : http://localhost:3001/suggestion?query=" + inputValue
     );
     try {
       const request = await axios.get(
-        "https://localhost:3001/suggestion?query=" + inputValue
+        "http://localhost:3001/suggestion?query=" + inputValue
       );
       setSuggestionList(request.data);
     } catch (err) {

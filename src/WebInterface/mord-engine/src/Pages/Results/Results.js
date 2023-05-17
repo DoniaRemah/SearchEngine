@@ -77,13 +77,13 @@ export default function Results(props) {
 
   const getSuggestionList = async () => {
     console.log(
-      "suggest : https://localhost:3001/suggestion?query=" + suggestValue
+      "suggest : http://localhost:3001/suggestion?query=" + suggestValue
     );
     let check = /^\s*$/.test(suggestValue);
     if (!check) {
       try {
         const request = await axios.get(
-          "https://localhost:3001/suggestion?query=" + suggestValue
+          "http://localhost:3001/suggestion?query=" + suggestValue
         );
         setSuggestionList(request.data);
       } catch (err) {
@@ -95,22 +95,22 @@ export default function Results(props) {
   const getSearchResult = async () => {
     // console.log(inputValue);
     console.log(
-      "search : https://localhost:3001/search?query=" +
+      "search : http://localhost:3001/search?query=" +
         inputValue +
         "&page=" +
         page +
-        "&limit=10"
+        "&limit=1"
     );
 
     let check = /^\s*$/.test(inputValue);
     if (!check) {
       try {
         const request = await axios.get(
-          "https://localhost:3001/search?query=" +
+          "http://localhost:3001/search?query=" +
             inputValue +
             "&page=" +
             page +
-            "&limit=10"
+            "&limit=1"
         );
         setSearchList(request.data);
         setLoading(false);
