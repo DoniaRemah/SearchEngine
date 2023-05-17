@@ -56,6 +56,7 @@ app.get('/test',async (req,res)=>{
 app.get('/suggestion',async (req,res)=>{
     //get the query from the request
     const query=req.query.query;
+    // console.log(query);
     //search the database for the previous queries that start with the new query
     //search in the collection called Suggestions
     //return an array of strings as a response
@@ -323,7 +324,7 @@ app.get('/search',async (req,res)=>{
         //descending order
         // the highest weightedSum will be the first element in the array
         info_array.sort((a,b)=>b.weightedSum-a.weightedSum);
-        console.log(info_array);
+        //console.log(info_array);
 
         ///////////////////////////////////////////////////////////////Return the results///////////////////////////////////////////////
         //initializing the response object

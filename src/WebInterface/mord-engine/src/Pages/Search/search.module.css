@@ -5,17 +5,16 @@
   justify-content: center;
   align-items: center;
   /* min-width: 100vw; */
-  /* min-width: 100vh; */
-  height: 100vh;
+  min-height: 100vh;
+  /* height: 100vh; */
   row-gap: 2rem;
-  overflow: hidden;
+  overflow-y: scroll;
 }
 
 .logoContainer {
   /* width: 50%;
   height: 40%; */
-  overflow: hidden;
-
+  /* overflow: hidden; */
   display: flex;
   margin: 0 auto;
   justify-content: center;
@@ -26,11 +25,12 @@
   /* width: 100%;
   height: 100%; */
   object-fit: cover;
-  overflow: hidden;
+  /* overflow: hidden; */
 }
 
 .search {
   width: 25rem;
+  position: relative;
 }
 
 .searchContainer {
@@ -53,20 +53,37 @@
   padding: 0.5rem 2rem;
   width: 100%;
 }
+
 .input {
   border-radius: 22px;
   box-shadow: 0 1px 6px 0 #20212447;
 }
 
-.activeinput {
-  border-radius: 22px 22px 0 0;
-  box-shadow: 0 0px 5px 0 #20212447;
+.ninput {
+    border-radius: 22px;
+    box-shadow: 0 1px 6px 0 #20212447;
 }
 
 .suggest {
   border-radius: 0 0 22px 22px;
   box-shadow: 0 1px 6px 0 #20212447;
+  position: absolute;
+  top: 100%;
+  width: 100%;
+  /* z-index: -2; */
+  background-color: white;
+  display: none;
 }
+
+.search:focus-within .input {
+    border-radius: 22px 22px 0 0;
+    box-shadow: 0 0px 5px 0 #20212447;
+  }
+
+.search:focus-within .suggest {
+  display: unset; /* Display the suggest div on hover of search input or the suggest div itself */
+}
+
 
 .suggestitem {
   padding: 0.5rem 3rem;
@@ -79,9 +96,13 @@
 
 @media screen and (max-width: 480px) {
   .logoContainer {
-    width: 60%;
+    width: 80%;
+  }
+
+  .logoContainer img{
+    width: 100%;
   }
   .search {
-    width: 60%;
+    width: 80%;
   }
 }

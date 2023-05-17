@@ -5,20 +5,19 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Results from "./Pages/Results/Results";
 
 function App() {
-  const [searchValue, setSearchValue] = useState("");
-  const [response, setResponse] = useState("");
 
   return (
+    
     <Router>
       <Routes>
         <Route
           exact
           path="/"
           element={
-            <Search setResponse={setResponse} setSearchValue={setSearchValue} />
+            <Search />
           }
         />
-        <Route path="/results" element={<Results />} />
+        <Route path="/results/:id" element={<Results />} />
       </Routes>
     </Router>
   );
