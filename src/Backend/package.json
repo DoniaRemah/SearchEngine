@@ -12,6 +12,12 @@
     "snowball-stemmers": "^0.6.0"
   },
   "scripts": {
-    "start": "nodemon src/Server.js"
-  }
+    "start": "nodemon app.js"
+  },
+  "name": "backend",
+  "version": "1.0.0",
+  "main": "app.js",
+  "author": "Ola",
+  "license": "ISC",
+  "description": ""
 }

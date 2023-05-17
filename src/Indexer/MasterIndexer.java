@@ -34,7 +34,7 @@ public class MasterIndexer {
         //crawlerDocsSize =  crawlerDocs.size();
 
         // TESTING
-        crawlerDocsSize = 1;
+        crawlerDocsSize = 4;
 
         // Using AtomicInteger to find the actual docs without spams
         // Automatically synchronizes
@@ -45,33 +45,43 @@ public class MasterIndexer {
 
         List<org.bson.Document> crawlerDocs = new ArrayList<>();
 
-        StringBuilder htmlContent = new StringBuilder();
-        String urlString="";
-        try {
-            // Specify the URL of the HTML page
-            urlString = "https://www.britannica.com/art/perfume";
-            URL url = new URL(urlString);
+        String [] urls = {
+                "https://www.britannica.com/art/perfume",
+                "https://deathnote.fandom.com/wiki/Pursuit",
+                "https://www.mcgill.ca/oss/article/history/story-perfume",
+                "https://www.recipegirl.com/how-to-make-iced-coffee/"
+        };
 
-            // Open a connection to the URL
-            BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
+        for(String strUrl : urls){
+            StringBuilder htmlContent = new StringBuilder();
+            try {
+                // Specify the URL of the HTML page
 
-            // Read the HTML content line by line
-            htmlContent = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                htmlContent.append(line);
+                URL url = new URL(strUrl);
+
+                // Open a connection to the URL
+                BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
+
+                // Read the HTML content line by line
+                htmlContent = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    htmlContent.append(line);
+                }
+
+                // Close the reader
+                reader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
 
-            // Close the reader
-            reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+            Document testdoc = new Document();
+            testdoc.append("URL",strUrl).append("HTMLDoc",htmlContent.toString());
+
+            crawlerDocs.add(testdoc);
         }
 
-        Document testdoc = new Document();
-        testdoc.append("URL",urlString).append("HTMLDoc",htmlContent.toString());
 
-        crawlerDocs.add(testdoc);
 
         ////////////////////////////////////////// END OF TEST
 
