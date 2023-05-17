@@ -1,3 +1,5 @@
+package Indexer;
+
 import DatabaseManagement.DBManager;
 import org.bson.Document;
 
@@ -71,7 +73,8 @@ public class MasterIndexer {
 
         crawlerDocs.add(testdoc);
 
-        // END OF TEST
+        ////////////////////////////////////////// END OF TEST
+
         if (number_threads > actualCrawlerDocsSize.intValue()){
             number_threads = actualCrawlerDocsSize.intValue();
         }

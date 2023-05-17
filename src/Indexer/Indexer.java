@@ -1,3 +1,5 @@
+package Indexer;
+
 import DatabaseManagement.DBManager;
 
 import java.io.File;
@@ -61,7 +63,7 @@ public class Indexer implements Runnable{
 
     private void Indexing(String URL, String htmlDoc){
 
-        // TODO Remove all html doc processing and start from Stemming.
+        // TODO Remove all html doc processing and start from Stemming (WHEN CRAWLER IS FINISHED)
 
         // REMOVE HTML TAGS
         Document parsedHtmlDoc = Jsoup.parse(htmlDoc);
@@ -70,8 +72,8 @@ public class Indexer implements Runnable{
         String unEditedParsedDoc = parsedHtmlDoc.text();
 
         // Removing all line breaks, any characters apart from letters and Whitespace.
-        docContent = docContent.replaceAll("\n", "")
-                .replaceAll("[^a-zA-Z ]", "")
+        docContent = docContent.replaceAll("\n", " ")
+                .replaceAll("[^a-zA-Z ]", " ")
                 .toLowerCase();
 
         // Removing all Stop words.

@@ -41,7 +41,6 @@ public class DBManager {
     /**
      *  Get all Documents from Crawler Collection
      */
-    // TODO Add Title Field
     public List<Document> retrieveCrawlerDocuments() {
 
         MongoCollection<Document> collection = database.getCollection("WebCrawler");
@@ -65,7 +64,6 @@ public class DBManager {
         Document document = new Document("URL", URL).append("Title",title).append("HTMLDoc", htmlDocString);
         // Inserting document into the collection
         collection.insertOne(document);
-        System.out.println("Document inserted successfully");
         System.out.println("Crawler Document Inserted successfully"+ URL);
     }
 
@@ -98,10 +96,6 @@ public class DBManager {
 
         MongoCollection<Document> collection = database.getCollection("Indexer");
 
-        // TODO OPTIMIZE
-//        collection.drop();
-//        collection = database.getCollection("Indexer");
-
         List<Document> docsListToBeInserted = new ArrayList<Document>();
 
         // Looping over every word.
@@ -127,15 +121,11 @@ public class DBManager {
                     // Extracting data to be inserted in each associated documented.
                     String url = String.valueOf(wordDocData.get("URL"));
                     String title = String.valueOf(wordDocData.get("Title"));
-                    //String TF = String.valueOf(wordDocData.get("TF"));
-//                    String Doc = String.valueOf(wordDocData.get("Content"));
                     String IDF_TF = String.valueOf(wordDocData.get("IDF_TF"));
 
 
                     WordDocProperties.append("URL", url);
                     WordDocProperties.append("Title", title);
-                    //WordDocProperties.append("TF", TF);
-//                    WordDocProperties.append("Content", Doc);
                     WordDocProperties.append("IDF_TF", IDF_TF);
 
                     // Adding each document for a single word.
@@ -150,6 +140,7 @@ public class DBManager {
             }
             else
             {
+                List<Document> bulkUpdates = new ArrayList<>();
                 // Looping over every document associated with the word.
                 for (int i = 0; i < IndexerTable.get(word).size(); i++) {
 
@@ -160,8 +151,6 @@ public class DBManager {
                         // Extracting data to be inserted in each associated documented.
                         String url = String.valueOf(wordDocData.get("URL"));
                         String title = String.valueOf(wordDocData.get("Title"));
-                        //String TF = String.valueOf(wordDocData.get("TF"));
-//                        String Doc = String.valueOf(wordDocData.get("Content"));
                         String IDF_TF = String.valueOf(wordDocData.get("IDF_TF"));
 
 
@@ -174,31 +163,28 @@ public class DBManager {
 
                         // URL Hasn't been added before.
                         if (result == null) {
+
                             // Appending new url document associated to the word in db
                             WordDocProperties.append("URL", url);
                             WordDocProperties.append("Title", title);
-                            //WordDocProperties.append("TF", TF);
-//                            WordDocProperties.append("Content", Doc);
                             WordDocProperties.append("IDF_TF", IDF_TF);
 
-                            collection.updateOne(
-                                    new Document("Word", word),
-                                    new Document("$push", new Document("FoundInDocs", WordDocProperties))
-                            );
+
+                            // Adding the update operation to the bulk updates list
+                            bulkUpdates.add(new Document("Word", word).append("$push", new Document("FoundInDocs", WordDocProperties)));
                         }
-
-
-
-
                 }
 
+                if (!bulkUpdates.isEmpty()) {
+                    collection.updateMany(new Document(), bulkUpdates);
+                }
             }
         }
 
         if (docsListToBeInserted.size() != 0){
             collection.insertMany(docsListToBeInserted);
         }
-        System.out.println("Inserted Indexer Documents into Indexer Collection");
+        System.out.println("Inserted IndexerDocuments into Indexer Collection");
     }
 
     ///////////////////////////////////////// RANKER REQUESTS
