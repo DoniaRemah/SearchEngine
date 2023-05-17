@@ -73,9 +73,9 @@ public class Main {
                 }
             }
         }
-//        DBManager dbManager = new DBManager();
-//        dbManager.insertManyCrawlerDocument(WebCrawler.DocumentsAndUrlsWithPrio);
-//        dbManager.close();
+        DBManager dbManager = new DBManager();
+        dbManager.insertManyCrawlerDocument(WebCrawler.DocumentsAndUrlsWithPrio);
+        dbManager.close();
         long endTime = System.currentTimeMillis();
 
         long executionTime = endTime - startTime;

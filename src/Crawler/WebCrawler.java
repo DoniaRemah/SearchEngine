@@ -167,14 +167,14 @@ public class WebCrawler implements Runnable {
         // Loop until there are no more links to crawl or the maximum number of crawled pages is reached
         while (currentCrawledPages.get() < MAX_CRAWLED_PAGES && !isEmpty) {
 
-            currentCrawledPages.incrementAndGet();
-
             String url="";
             if (linksToCrawl != null){
                 synchronized (linksToCrawl) {
                     url = linksToCrawl.poll();
+                    currentCrawledPages.incrementAndGet();
                 }
             }
+
             //note that the url we got is already normalized as linkstoCRawl has normalzied links
 
             if(url==null){
@@ -239,7 +239,7 @@ public class WebCrawler implements Runnable {
                 try {
                     ReadRobotTxt(roboturl,url);
                 } catch (MalformedURLException e) {
-                    currentCrawledPages.decrementAndGet();
+                    //currentCrawledPages.decrementAndGet();
                     throw new RuntimeException(e);
                 }
             }
@@ -262,7 +262,7 @@ public class WebCrawler implements Runnable {
                 ExtractLinks(htmlDoc);
 
             } catch (IOException e) {
-                currentCrawledPages.decrementAndGet();
+                //currentCrawledPages.decrementAndGet();
                 throw new RuntimeException(e);
             }
 
