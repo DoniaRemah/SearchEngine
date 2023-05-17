@@ -34,7 +34,7 @@ public class WebCrawler implements Runnable {
 
 
     private static final String STATE_FILE_PATH = "crawlerState.txt";
-    private static final int MAX_CRAWLED_PAGES = 50;
+    private static final int MAX_CRAWLED_PAGES = 200;
 //    private static final int MAX_PAGES_PER_CRAWLER = 1000;
 //    private static final int MAX_PAGES_PER_THREAD = 100;
 
@@ -150,7 +150,9 @@ public class WebCrawler implements Runnable {
         //if exists then load if not dont load
 
         // TODO TEST LOAD STATE
-        //loadStateFromFile();
+
+        loadStateFromFile();
+        System.out.println("after loading, the current crawled are:" + currentCrawledPages);
 
 
         //so max number of pages per thread is determined by user
@@ -286,7 +288,7 @@ public class WebCrawler implements Runnable {
             //incrementing page:
 
             //save to state every time we crawl
-            //saveStateToFile();
+            saveStateToFile();
 
         }
 
@@ -323,7 +325,10 @@ public class WebCrawler implements Runnable {
             fileWriter.write(currentCrawledPages.get() + "\n");
             fileWriter.write(String.join(",", disallowed_URLs) + "\n");
             fileWriter.write(String.join(",", linksToCrawl) + "\n");
-            fileWriter.write(String.join(",", visitedLinks) + "\n");
+            //fileWriter.write(String.join(",", visitedLinks) + "\n");
+            if (visitedLinks != null) {
+                fileWriter.write(String.join(",", visitedLinks) + "\n");
+            }
 
             // TODO IF WE DEPLOYED LOCAL, MAKE IT GET THE DOCUMENTS FROM DB
             fileWriter.write(DocumentsAndUrlsWithPrio + "\n");
@@ -350,8 +355,19 @@ public class WebCrawler implements Runnable {
             FileReader fileReader = new FileReader(stateFile);
             BufferedReader bufferedReader = new BufferedReader(fileReader);
 
+            // Check if the file is still empty  [nth to load]
+            String firstLine= bufferedReader.readLine();
+            if ( firstLine== null) {
+                System.out.println("file is empty");
+                bufferedReader.close();
+                fileReader.close();
+                return;
+            }
+
             // Read the saved state from the file
-            currentCrawledPages.set(Integer.parseInt(bufferedReader.readLine()));
+            //System.out.println(bufferedReader.readLine());
+           // System.out.println(Integer.parseInt(bufferedReader.readLine()));
+            currentCrawledPages.set(Integer.parseInt(firstLine));
             disallowed_URLs = new Vector<>(Arrays.asList(bufferedReader.readLine().split(",")));
             linksToCrawl = new LinkedList<>(Arrays.asList(bufferedReader.readLine().split(",")));
             visitedLinks = new HashSet<>(Arrays.asList(bufferedReader.readLine().split(",")));
@@ -586,51 +602,71 @@ public class WebCrawler implements Runnable {
 //
         URI uri = new URI(url);
 
-        return uri.normalize().toString();
+        //return uri.normalize().toString();
+        uri = uri.normalize();
+
+        //port -- need normalization
+        //will return either -1 or the port
+        int port = uri.getPort();
+        int normalizedPort = normalizePort(uri.getScheme(), port);
+
+
+        //normalize host
+
+        String host = uri.getHost();
+        URI normalized_URL;
+        if (host != null && host.toLowerCase().startsWith("www.")) {
+            host = host.substring(4); // remove "www."
+             normalized_URL = new URI(uri.getScheme(), uri.getUserInfo(), host, uri.getPort(), uri.getPath(), uri.getQuery(), uri.getFragment());
+        } else {
+             normalized_URL = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), normalizedPort, uri.getPath(), uri.getQuery(), uri.getFragment());
+        }
+
+        return normalized_URL.toString();
+
+
 
         //we need to seperate each part in order to apply normalization:
-        //-----------------------------------------------------------------
+       // -----------------------------------------------------------------
 
-//        //scheme -- needs normalization  by converting to lower case    --shceme is http and https
+       // scheme -- needs normalization  by converting to lower case    --shceme is http and https
 //        String scheme = uri.getScheme();
 //        if (scheme == null) {
 //            throw new RuntimeException("URL scheme is required.");
 //        }
 //        String normalizedScheme = scheme.toLowerCase();
 //
-//        //userinfo -- no need:
+//        userinfo -- no need:
 //        String userInfo = uri.getUserInfo();
 //
-//        //host -- needs normalization by converting to lower case
+//        host -- needs normalization by converting to lower case
 //        String host = uri.getHost();
 //
+//        String normalizedHost = null;
+//        if(host != null){
+//            normalizedHost = host.toLowerCase();
+//        }
 //
-//        String normalizedHost = host.toLowerCase();
 //
-//
-//        //port -- need normalization
-//        //will return either -1 or the port
-//        int port = uri.getPort();
-//        int normalizedPort = normalizePort(normalizedScheme, port);
 //
 //        //path --need normalization
 //        //the first thing we do is remove .. or . using normalize function in uri
 //        URI normalizedUrl_1 = uri.normalize();
-//        String path = normalizedUrl_1.getPath();
+//          String path = uri.getPath();
 //        //then we need to normalize stuff in the path itself too
 //        String normalizedPath = normalizePath(path);
 //
 //        //query --need normalization
-//        String query =uri.getQuery();
-//        String normalizedQuery = normalizeQuery(query);
+//            String query =uri.getQuery();
+////        String normalizedQuery = normalizeQuery(query);
+//          String normalizedQuery= query;
 //
-//
-//        //fragment --need normalization
+//        fragment --need normalization
 //        String fragment =uri.getFragment();
 //        String normalizedFragment = normalizeFragment(fragment);
 //
 //        URI normalized_URL = new URI(normalizedScheme, userInfo, normalizedHost, normalizedPort, normalizedPath, normalizedQuery, normalizedFragment);
-//
+//        URI normalized_URL = new URI(uri.getScheme(), userInfo, host, normalizedPort, path, query, normalizedFragment);
 //        return normalized_URL.toString();
 
 
