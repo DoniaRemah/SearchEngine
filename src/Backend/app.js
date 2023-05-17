@@ -84,7 +84,21 @@ app.get('/suggestion',async (req,res)=>{
     //search in the collection called Suggestions
     //return an array of strings as a response
     //finding only the first 8 results as a maximum limit
-    const foundQueries=await database.collection("Suggestions").find({query:{$regex:`^${query}`}}).limit(8).toArray();
+
+    //doesn't handle special characters
+    // const foundQueries=await database.collection("Suggestions").find({query:{$regex:`^${query}`}}).limit(8).toArray();
+
+    //handles special characters
+    function escapeRegExp(string) {
+        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+        const escapedQuery = escapeRegExp(query);
+        const foundQueries = await database
+            .collection("Suggestions")
+            .find({ query: { $regex: `^${escapedQuery}` } })
+            .limit(8)
+            .toArray();
+
     // console.log(foundQueries);
     const response=[];
     foundQueries.forEach(object => {
