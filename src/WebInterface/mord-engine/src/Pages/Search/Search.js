@@ -6,13 +6,16 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 export default function Search(props) {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   const [inputValue, setInputValue] = useState("");
   const [suggestionList, setSuggestionList] = useState([]);
 
   const handleInputChange = (event) => {
     // console.log(event.target.value);
     setInputValue(event.target.value);
+    // let arr = suggestionList;
+    // arr.push(event.target.value);
+    // setSuggestionList(arr);
     // getSuggestionList();
   };
 
@@ -30,24 +33,9 @@ export default function Search(props) {
   const handleSubmit = () => {
     // Handle the submission logic here
     // console.log("Form submitted with value:", inputValue);
-    props.setSearchValue(inputValue)
-    // getSearchResult();
+    navigate("/results/" + inputValue);
   };
 
-  const getSearchResult = async () => {
-    console.log(
-      "search : https://localhost:3000/search?query=" + inputValue + "&limit=10"
-    );
-    try {
-      const request = await axios.get(
-        "https://localhost:3000/search?query=" + inputValue + "&limit=10"
-      );
-      props.setResponse(request.data);
-      navigate("/results");
-    } catch (err) {
-      console.log("err");
-    }
-  };
 
   const getSuggestionList = async () => {
     console.log(
@@ -72,9 +60,7 @@ export default function Search(props) {
         {" "}
         <div className={classes.searchContainer}>
           <input
-            className={
-              suggestionList.length !== 0 ? classes.activeinput : classes.input
-            }
+            className={suggestionList.length !== 0 ? classes.input : classes.ninput}
             type="text"
             value={inputValue}
             onChange={handleInputChange}
