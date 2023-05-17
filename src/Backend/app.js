@@ -324,7 +324,7 @@ app.get('/search',async (req,res)=>{
         //descending order
         // the highest weightedSum will be the first element in the array
         info_array.sort((a,b)=>b.weightedSum-a.weightedSum);
-        console.log(info_array);
+        //console.log(info_array);
 
         ///////////////////////////////////////////////////////////////Return the results///////////////////////////////////////////////
         //initializing the response object
