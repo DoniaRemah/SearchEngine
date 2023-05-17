@@ -60,12 +60,14 @@ public class DBManager {
     /**
      * // Insert a crawler document into the webcrawler collection
      */
-    public void insertCrawlerDocument(String htmlDocString, String URL, String title) {
+    public void insertCrawlerDocument(String htmlDocString, String URL, String title,List<String> PointsTo) {
+
         MongoCollection<Document> collection = database.getCollection("WebCrawler");
-        Document document = new Document("URL", URL).append("Title",title).append("HTMLDoc", htmlDocString);
+        Document document = new Document("URL", URL).append("Title", title).append("Content", htmlDocString).append("PointsT0", PointsTo);
         // Inserting document into the collection
         collection.insertOne(document);
-        System.out.println("Crawler Document Inserted successfully"+ URL);
+        System.out.println("Crawler Document Inserted successfully" + URL);
+
     }
 
     /**

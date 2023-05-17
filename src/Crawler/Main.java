@@ -29,10 +29,14 @@ public class Main {
 
 
     public static void main(String[] args) {
-        seeds = readSeeds("seed.txt");
+
+        long startTime = System.currentTimeMillis();
+
+        seeds = readSeeds("src/Crawler/seed.txt");
+
         // Print the seeds for verification
         for (String seed : seeds) {
-            System.out.println(seed);
+            System.out.println("Seeds for the crawler:"+seed);
         }
 
         Vector<WebCrawler> crawlers = new Vector<>();
@@ -43,17 +47,19 @@ public class Main {
         System.out.print("Please enter number of threads u need for the 6 crawlers: ");
         Scanner scanner = new Scanner(System.in);
         int numberOfThreads = scanner.nextInt();
-        System.out.println("User entered: " + numberOfThreads);
+        //System.out.println("User entered: " + numberOfThreads);
 
 
 
         //we will add 6 crawlers:
         crawlers.add(new WebCrawler(seeds, 1, numberOfThreads));
-        crawlers.add(new WebCrawler(seeds, 2, numberOfThreads));
-        crawlers.add(new WebCrawler(seeds, 3, numberOfThreads));
-        crawlers.add(new WebCrawler(seeds, 4, numberOfThreads));
-        crawlers.add(new WebCrawler(seeds, 5, numberOfThreads));
-        crawlers.add(new WebCrawler(seeds, 6, numberOfThreads));
+
+        // TODO RETURN TO THIS IDEA AT THE END
+//        crawlers.add(new WebCrawler(seeds, 2, numberOfThreads));
+//        crawlers.add(new WebCrawler(seeds, 3, numberOfThreads));
+//        crawlers.add(new WebCrawler(seeds, 4, numberOfThreads));
+//        crawlers.add(new WebCrawler(seeds, 5, numberOfThreads));
+//        crawlers.add(new WebCrawler(seeds, 6, numberOfThreads));
 
 
 
@@ -70,6 +76,17 @@ public class Main {
             }
 
         }
+
+        long endTime = System.currentTimeMillis();
+
+        long executionTime = endTime - startTime;
+
+        // Convert milliseconds to minutes and seconds
+        long minutes = (executionTime / 1000) / 60;
+        long seconds = (executionTime / 1000) % 60;
+
+        // Print the execution time
+        System.out.println("Program execution time: " + minutes + " minutes, " + seconds + " seconds");
 
     }
 }

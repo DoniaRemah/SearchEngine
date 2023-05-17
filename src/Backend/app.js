@@ -324,7 +324,13 @@ app.get('/search',async (req,res)=>{
         //descending order
         // the highest weightedSum will be the first element in the array
         info_array.sort((a,b)=>b.weightedSum-a.weightedSum);
-        //console.log(info_array);
+        // console.log(info_array);
+
+        //see if any link is repeated
+        //if yes, keep the one with the highest weightedSum
+        info_array=lodash.uniqBy(info_array,'url');
+        // console.log(info_array);
+
 
         ///////////////////////////////////////////////////////////////Return the results///////////////////////////////////////////////
         //initializing the response object
@@ -349,6 +355,7 @@ app.get('/search',async (req,res)=>{
         for(let i=0;i<results.length;i++)
         {
             var tempObject={};
+            tempObject.Word=results[i].word;
             tempObject.URL=results[i].url;
             tempObject.Title=results[i].title;
             const index=results[i].content.indexOf(results[i].word);
