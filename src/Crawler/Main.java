@@ -29,10 +29,12 @@ public class Main {
 
 
     public static void main(String[] args) {
-        seeds = readSeeds("seed.txt");
+        seeds = readSeeds("src/Crawler/seed.txt");
+
+        // TODO REMOVE THIS
         // Print the seeds for verification
         for (String seed : seeds) {
-            System.out.println(seed);
+            System.out.println("Seeds for the crawler:"+seed);
         }
 
         Vector<WebCrawler> crawlers = new Vector<>();
@@ -43,17 +45,19 @@ public class Main {
         System.out.print("Please enter number of threads u need for the 6 crawlers: ");
         Scanner scanner = new Scanner(System.in);
         int numberOfThreads = scanner.nextInt();
-        System.out.println("User entered: " + numberOfThreads);
+        //System.out.println("User entered: " + numberOfThreads);
 
 
 
         //we will add 6 crawlers:
         crawlers.add(new WebCrawler(seeds, 1, numberOfThreads));
-        crawlers.add(new WebCrawler(seeds, 2, numberOfThreads));
-        crawlers.add(new WebCrawler(seeds, 3, numberOfThreads));
-        crawlers.add(new WebCrawler(seeds, 4, numberOfThreads));
-        crawlers.add(new WebCrawler(seeds, 5, numberOfThreads));
-        crawlers.add(new WebCrawler(seeds, 6, numberOfThreads));
+
+        // TODO RETURN TO THIS IDEA AT THE END
+//        crawlers.add(new WebCrawler(seeds, 2, numberOfThreads));
+//        crawlers.add(new WebCrawler(seeds, 3, numberOfThreads));
+//        crawlers.add(new WebCrawler(seeds, 4, numberOfThreads));
+//        crawlers.add(new WebCrawler(seeds, 5, numberOfThreads));
+//        crawlers.add(new WebCrawler(seeds, 6, numberOfThreads));
 
 
 

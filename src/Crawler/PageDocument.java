@@ -7,13 +7,13 @@ import org.jsoup.nodes.Document;
 ///we also have increment in case the page is referred by more than one link
 public class PageDocument {
    // private String url;
-    private Document htmlDoc;
+    private String htmlDoc;
     private String title;
     private int count;
 
     //we will add title
 
-    public PageDocument(Document htmlDoc, String title) {
+    public PageDocument(String htmlDoc, String title) {
         this.htmlDoc = htmlDoc;
         this.title= title;
         this.count = 1;
@@ -38,11 +38,11 @@ public class PageDocument {
 
     public String getTitle(){return title;}
 
-    public Document getHtmlDoc() {
+    public String getHtmlDoc() {
         return htmlDoc;
     }
 
-    public void setHtmlDoc(Document htmlDoc) {
+    public void setHtmlDoc(String htmlDoc) {
         this.htmlDoc = htmlDoc;
     }
 }

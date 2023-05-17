@@ -8,9 +8,9 @@ const lodash=require('lodash');
 const fs=require('fs');
 // const { EnglishStemmer } = require('snowball-stemmers');
 const Snowball= require('snowball-stemmers');
-const e = require('express');
+const stopwords=require('./StopWords.js')
 
-const PORT=3000;
+const PORT=3001;
 const connectioString='mongodb+srv://abouelhadidola:8aWAvyLwc824XSm8@searchengine.uwkyb5b.mongodb.net/?retryWrites=true&w=majority';
 
 app.use(bodyParser.json());
@@ -226,12 +226,9 @@ app.get('/search',async (req,res)=>{
         //2- Remove all the stop words
         //the stop words are stored in a file called StopWords.txt
         //read the file, one word per line
-        const stopWords=fs.readFileSync('StopWords.txt','utf8').split('\r\n');
-        // console.log(stopWords);
+        // const stopWords=fs.readFileSync('StopWords.txt','utf8').split('\r\n');
         //remove the stop words from the query
-        const query2=lodash.difference(query1.split(' '),stopWords).join(' ');
-
-
+        const query2=lodash.difference(query1.split(' '),stopwords).join(' ');
         //3- lowercase all the words
         const query3=query2.toLowerCase();
 
@@ -278,8 +275,55 @@ app.get('/search',async (req,res)=>{
         // TODO: Sort according to the IDF_TF value
         // convert the IDF_TF value to a number
         // sort the array of objects based on the IDF_TF value
-        foundDocuments.sort((a,b)=>parseFloat(b.IDF_TF)-parseFloat(a.IDF_TF));
+        //will need to get the rank of the url from the Crawler collection
+        
+        //on tf-idf only
+        // foundDocuments.sort((a,b)=>parseFloat(b.IDF_TF)-parseFloat(a.IDF_TF));
 
+        //on tf-idf and rank
+        //get a weighted sum of the IDF_TF and the rank
+        //give more weight to the rank
+        //loop through the foundDocuments array
+        //for every object, search the database for the document with the same URL
+        //search for the URL in the URL field
+        //will get the rank from the Rank field
+
+        //Info about the word, url, title, and content
+        //to be 
+        var info_array=[];
+        //one loop for crawler to get what we need
+        for(let i=0;i<foundDocuments.length;i++)
+        {
+            var info_object={};
+            info_object.word=foundDocuments[i].word;
+            info_object.url=foundDocuments[i].URL;;
+            //search for the URL in the database
+            const foundDocument=await database.collection("Crawler").findOne({URL:foundDocuments[i].URL});
+            //the found document will contain the URL, Title, and Content fields
+            info_object.title=foundDocument.Title;
+            info_object.content=foundDocument.Content;
+            //get the rank from the Rank field
+            const rank=foundDocument.Rank;
+            // console.log(rank);
+            //get the IDF_TF from the foundDocuments[i] object
+            const IDF_TF= parseFloat(foundDocuments[i].IDF_TF);
+            // console.log(IDF_TF);
+            //calculate the weighted sum
+            const weightedSum=60*rank+40*IDF_TF;
+            info_object.weightedSum=weightedSum;
+            //push the info_object to the info_array
+            info_array.push(info_object);
+        }
+        // console.log(info_array);
+
+
+        // I have an info array that has the following fields:
+        // word, url, title, content, weightedSum
+        // sort the array based on the weightedSum
+        //descending order
+        // the highest weightedSum will be the first element in the array
+        info_array.sort((a,b)=>b.weightedSum-a.weightedSum);
+        console.log(info_array);
 
         ///////////////////////////////////////////////////////////////Return the results///////////////////////////////////////////////
         //initializing the response object
@@ -292,7 +336,7 @@ app.get('/search',async (req,res)=>{
         const startIndex=(page-1)*limit;
         const endIndex=page*limit;
         //slice the array
-        const results=foundDocuments.slice(startIndex,endIndex);
+        const results=info_array.slice(startIndex,endIndex);
 
         //in the Crawler collection in the database
         //TODO: change "Crawler" collection to "WebCrawler"
@@ -303,33 +347,29 @@ app.get('/search',async (req,res)=>{
 
         for(let i=0;i<results.length;i++)
         {
-            //search for the URL in the database
-            const foundDocument=await database.collection("Crawler").findOne({URL:results[i].URL});
-            // the found document will contain the URL, Title, and Content fields
             var tempObject={};
-            tempObject.URL=results[i].URL;
-            tempObject.Title=foundDocument.Title;
-            //find the index of the stemmed word in the content
-            const index=foundDocument.Content.indexOf(results[i].word);
+            tempObject.URL=results[i].url;
+            tempObject.Title=results[i].title;
+            const index=results[i].content.indexOf(results[i].word);
             //take a snippet around the query
             //the snippet is 400 characters long
             //the snippet is centered around the query
             //check the cases of index
             if (index-400<0){
-                if(index+400<foundDocument.Content.length){
-                    tempObject.Content=foundDocument.Content.slice(0,index+400);
+                if(index+400<results[i].content.length){
+                    tempObject.Content=results[i].content.slice(0,index+400);
                 }
                 else{
-                    tempObject.Content=foundDocument.Content.slice(0,index);
+                    tempObject.Content=results[i].content.slice(0,index);
                 }
             }
-            else if(index+400>foundDocument.Content.length){
+            else if(index+400>results[i].content.length){
                 if(index-400>0){
-                    tempObject.Content=foundDocument.Content.slice(index-400,index);
+                    tempObject.Content=results[i].content.slice(index-400,index);
                 }
             }
             else{
-                tempObject.Content=foundDocument.Content.slice(index-400,index+400);
+                tempObject.Content=results[i].content.slice(index-400,index+400);
             }
 
             response.result.push(tempObject);
