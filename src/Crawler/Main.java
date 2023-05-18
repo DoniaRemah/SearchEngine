@@ -73,15 +73,37 @@ public class Main {
                     e.printStackTrace();
                 }
             }
+
+
         }
+
+
         //we want to erase the crawlerState after joining:
 //        File file = new File("crawlerState.txt");
+//
 //        if (file.delete()) {
 //            System.out.println("File deleted successfully.");
 //        } else {
 //            System.out.println("Failed to delete the file.");
 //        }
 
+        File file = new File("crawlerState.txt");
+        if (file.delete()) {
+            System.out.println("File deleted successfully.");
+        } else {
+            try {
+                Thread.sleep(1000); // Wait for 1 second
+                if (file.delete()) {
+                    System.out.println("File deleted successfully.");
+                } else {
+                    System.out.println("Failed to delete the file.");
+                }
+            } catch (InterruptedException e) {
+                System.out.println("Error deleting file: " + e.getMessage());
+            }
+        }
+
+        System.out.println("FINISHEDDDDD ---- REACHED: "+WebCrawler.DocumentsAndUrlsWithPrio.size());
         DBManager dbManager = new DBManager();
         dbManager.insertManyCrawlerDocument(WebCrawler.DocumentsAndUrlsWithPrio);
         dbManager.close();

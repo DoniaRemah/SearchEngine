@@ -11,10 +11,13 @@ import org.jsoup.safety.Safelist;
 import org.jsoup.select.Elements;
 import org.bson.*;
 
+import javax.print.Doc;
 import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /*
@@ -34,7 +37,7 @@ public class WebCrawler implements Runnable {
 
 
     private static final String STATE_FILE_PATH = "crawlerState.txt";
-    private static final int MAX_CRAWLED_PAGES = 1000 ;
+    private static final int MAX_CRAWLED_PAGES = 6000 ;
 //    private static final int MAX_PAGES_PER_CRAWLER = 1000;
 //    private static final int MAX_PAGES_PER_THREAD = 100;
 
@@ -153,14 +156,17 @@ public class WebCrawler implements Runnable {
         //if it got interuppted it will alwasy be out of the while loop so it will check if file exists or not
         //if exists then load if not dont load
 
-        // TODO TEST LOAD STATE
-
-        //loadStateFromFile();
-        System.out.println("after loading, the current crawled are:" + currentCrawledPages);
 
 
         //so max number of pages per thread is determined by user
-        int totalPages=0;
+       // int totalPages=0;
+
+        int totalPages= loadStateFromFile();
+        System.out.println("after loading, the current crawled are:" + totalPages);
+
+
+        System.out.println("after loading, size of docs ar1e:" + DocumentsAndUrlsWithPrio.size());
+
         if (DocumentsAndUrlsWithPrio !=null){
             synchronized (DocumentsAndUrlsWithPrio){
                 totalPages = DocumentsAndUrlsWithPrio.size();
@@ -180,14 +186,14 @@ public class WebCrawler implements Runnable {
                     break;
                 }
             }
-            if (DocumentsAndUrlsWithPrio !=null){
-                synchronized (DocumentsAndUrlsWithPrio){
-                    totalPages = DocumentsAndUrlsWithPrio.size();
-                    if(totalPages >= MAX_CRAWLED_PAGES){
-                        return;
-                    }
-                }
-            }
+//            if (DocumentsAndUrlsWithPrio !=null){
+//                synchronized (DocumentsAndUrlsWithPrio){
+//                    totalPages = DocumentsAndUrlsWithPrio.size();
+//                    if(totalPages >= MAX_CRAWLED_PAGES){
+//                        return;
+//                    }
+//                }
+           // }
         }
 
         // TODO STOP EXECUTION OF ALL THREADS SOMEHOW
@@ -306,9 +312,17 @@ public class WebCrawler implements Runnable {
 
 
             // Add the document to the map
+            //NEWWWWWWWWWWWWWWWWWWWWWWWWW-------------------------------------------------
+            //BEFORE ADDINGT TO DOC CHECK THAT SIZE DIDNT REACH MAX
             if (DocumentsAndUrlsWithPrio !=null){
                 synchronized (DocumentsAndUrlsWithPrio) {
-                    addDocument(DocToBeAdded, url);
+                    if(DocumentsAndUrlsWithPrio.size()>=MAX_CRAWLED_PAGES){
+                        return;
+                    }
+                    else{
+                        addDocument(DocToBeAdded, url);
+                    }
+
                 }
             }
             if (DocumentsAndUrlsWithPrio != null){
@@ -328,7 +342,7 @@ public class WebCrawler implements Runnable {
             //incrementing page:
 
             //save to state every time we crawl
-            //saveStateToFile();
+            saveStateToFile(totalPages);
 
         }
 
@@ -346,13 +360,17 @@ public class WebCrawler implements Runnable {
     //---------------------------------------------------------------------------------------------------------
 
     //----------------------------------------For saving states--------------------------------------
-    private static void saveStateToFile() {
+    private static  void saveStateToFile(int totalPages) {
         try {
             // Create a file writer to write the crawler's state to a file
-            FileWriter fileWriter = new FileWriter(STATE_FILE_PATH);
+            FileWriter fileWriter ;
 
-            // Write the current state to the file
-            //To save state we need the following:
+            synchronized (STATE_FILE_PATH) {
+                fileWriter = new FileWriter(STATE_FILE_PATH);
+
+
+                // Write the current state to the file
+                //To save state we need the following:
             /*
                 ==> currentCrawled pages
                 ==> disallowed urls
@@ -360,20 +378,45 @@ public class WebCrawler implements Runnable {
                 ==>  vistedLinks (to not revist them)
                 ==> ofcourse the DocumentsAndUrlsWithPrio at the end
              */
-            //This will save every thing in one line and the items are sperated by ,
-            fileWriter.write(currentCrawledPages.get() + "\n");
-            fileWriter.write(String.join(",", disallowed_URLs) + "\n");
-            fileWriter.write(String.join(",", linksToCrawl) + "\n");
-            //fileWriter.write(String.join(",", visitedLinks) + "\n");
-            if (visitedLinks != null) {
-                fileWriter.write(String.join(",", visitedLinks) + "\n");
+                //This will save every thing in one line and the items are sperated by ,
+                // fileWriter.write(currentCrawledPages.get() + "\n");
+
+                fileWriter.write(totalPages + "\n");
+                synchronized (disallowed_URLs) {
+                    fileWriter.write(String.join(",", disallowed_URLs) + "\n");
+                }
+                synchronized (linksToCrawl) {
+                    fileWriter.write(String.join(",", linksToCrawl) + "\n");
+                }
+                //fileWriter.write(String.join(",", visitedLinks) + "\n");
+
+                if (visitedLinks != null) {
+                    synchronized (visitedLinks) {
+                        fileWriter.write(String.join(",", visitedLinks) + "\n");
+                    }
+                }
+
+
+                // TODO IF WE DEPLOYED LOCAL, MAKE IT GET THE DOCUMENTS FROM DB
+                //  fileWriter.write(DocumentsAndUrlsWithPrio + "\n");
+
+                synchronized (DocumentsAndUrlsWithPrio) {
+                    for (Map.Entry<String, PageDocument> entry : DocumentsAndUrlsWithPrio.entrySet()) {
+                        String url = entry.getKey();
+                        PageDocument pageDoc = entry.getValue();
+                        String title = pageDoc.getTitle();
+                        String document = pageDoc.getHtmlDoc();
+                        //List<String> urls = pageDoc.getPointsTo();
+                        List<String> urls = new ArrayList<>(pageDoc.getPointsTo());
+                        String outputLine = url + "\\|" + title + "\\|" + document + "\\|" + String.join(",", urls);
+                        //String outputLine = url + "\\|" + title + "\\|" + document + "\\|" + String.join(",", urls);
+                        fileWriter.write(outputLine + "\n");
+                    }
+                }
+
+                // Close the file writer
+                fileWriter.close();
             }
-
-            // TODO IF WE DEPLOYED LOCAL, MAKE IT GET THE DOCUMENTS FROM DB
-            fileWriter.write(DocumentsAndUrlsWithPrio + "\n");
-
-            // Close the file writer
-            fileWriter.close();
         } catch (IOException e) {
             // Log the error
             System.err.println("Error while saving crawler state: " + e.getMessage());
@@ -382,12 +425,21 @@ public class WebCrawler implements Runnable {
 
 
 
-    private static void loadStateFromFile() {
+    private static  int loadStateFromFile() {
         //checking first that file exists
-        File stateFile = new File(STATE_FILE_PATH);
+       // File stateFile = new File(STATE_FILE_PATH);
+
+        File stateFile ;
+
+        synchronized (STATE_FILE_PATH){
+            stateFile = new File(STATE_FILE_PATH);
+        }
+
+
+        int totalPages=0;
         if (!stateFile.exists()) {
             System.out.println("State file not found.");
-            return;
+            return 0;
         }
         try {
             // Create a file reader to read the crawler's state from a file
@@ -400,26 +452,41 @@ public class WebCrawler implements Runnable {
                 System.out.println("file is empty");
                 bufferedReader.close();
                 fileReader.close();
-                return;
+                return 0;
             }
 
             // Read the saved state from the file
             //System.out.println(bufferedReader.readLine());
            // System.out.println(Integer.parseInt(bufferedReader.readLine()));
+
             currentCrawledPages.set(Integer.parseInt(firstLine));
+            totalPages = currentCrawledPages.get();
             disallowed_URLs = new Vector<>(Arrays.asList(bufferedReader.readLine().split(",")));
             linksToCrawl = new LinkedList<>(Arrays.asList(bufferedReader.readLine().split(",")));
             visitedLinks = new HashSet<>(Arrays.asList(bufferedReader.readLine().split(",")));
             DocumentsAndUrlsWithPrio = new HashMap<>();
             String line;
             while ((line = bufferedReader.readLine()) != null) {
-                String[] parts = line.split(":");
+                String[] parts = line.split("\\|", 4);
                 String url = parts[0];
-                String stringdoc = parts[1];
-                String title = parts[2];
-                int prio = Integer.parseInt(parts[3]);
+                String title = parts[1];
+                String stringdoc = parts[2];
+                String[] urlList = parts[3].split(",");
+                List<String> urls = Arrays.asList(urlList);
+
+                //String[] parts = line.split(":");
+                //String url = parts[0];
+                //String stringdoc = parts[2];
+                //String title = parts[1];
+                //String[] urlList = parts[3].split(",");
+                //List<String> urls = Arrays.asList(urlList);
+                ///int prio = Integer.parseInt(parts[3]);
                 Document doc = Jsoup.parse(stringdoc);
-                DocumentsAndUrlsWithPrio.put(url, new PageDocument(stringdoc, title));
+                PageDocument pageDoc = new PageDocument(stringdoc, title);
+                pageDoc.setPointsTo(urls);
+                synchronized (DocumentsAndUrlsWithPrio) {
+                    DocumentsAndUrlsWithPrio.put(url, pageDoc);
+                }
             }
 
             // Close the file reader
@@ -429,6 +496,7 @@ public class WebCrawler implements Runnable {
             // Log the error
             System.err.println("Error while loading crawler state: " + e.getMessage());
         }
+        return totalPages;
     }
 
     //------------------------------------------------------------------------------------------------
@@ -526,38 +594,7 @@ public class WebCrawler implements Runnable {
 
         return new org.bson.Document("HTMLDoc",docContent).append("title",docTitle);
 
-//
-//        // Configure the whitelist for HTML sanitization
-//        Document inputDoc = Jsoup.parse(html);
-//        Cleaner cleaner = new Cleaner(Safelist.none());
-//        //boolean isValid = cleaner.isValidBodyHtml(html);
-//        return cleaner.clean(inputDoc);
 
-        // Get the compressed HTML
-        //String compressedHtml = cleanedDoc.html();
-
-//        HtmlCompressor compressor = new HtmlCompressor();
-//
-//        //we don't need css or js code for indexer so remove them
-//        compressor.setCompressCss(true);
-//        compressor.setCompressJavaScript(true);
-//
-//       //to remove any comments , not needed for indexer
-//        compressor.setRemoveComments(true);
-//
-//        //to preserve the spaces for indexer:
-//        compressor.setRemoveIntertagSpaces(false);
-//        compressor.setPreserveLineBreaks(true);
-//        compressor.setRemoveQuotes(false);
-//
-//        //i am not sure about this
-//        compressor.setRemoveMultiSpaces(false);
-//
-//        //for simplifying doctype -will not affect indexer
-//        compressor.setSimpleDoctype(true);
-//
-//
-//        compressor.compress(html);
     }
 
     //function to remove stop words:
@@ -570,7 +607,7 @@ public class WebCrawler implements Runnable {
             Scanner Words = new Scanner(StopWords);
 
             while (Words.hasNextLine()) {
-                htmlDocString=htmlDocString.replaceAll("\s+" + Words.nextLine() + "\s+", " ");
+                htmlDocString=htmlDocString.replaceAll("\\s+" + Words.nextLine() + "\\s+", " ");
             }
             Words.close();
         } catch (IOException e) {
@@ -660,164 +697,8 @@ public class WebCrawler implements Runnable {
         return normalized_URL.toString();
 
 
-
-        //we need to seperate each part in order to apply normalization:
-       // -----------------------------------------------------------------
-
-       // scheme -- needs normalization  by converting to lower case    --shceme is http and https
-//        String scheme = uri.getScheme();
-//        if (scheme == null) {
-//            throw new RuntimeException("URL scheme is required.");
-//        }
-//        String normalizedScheme = scheme.toLowerCase();
-//
-//        userinfo -- no need:
-//        String userInfo = uri.getUserInfo();
-//
-//        host -- needs normalization by converting to lower case
-//        String host = uri.getHost();
-//
-//        String normalizedHost = null;
-//        if(host != null){
-//            normalizedHost = host.toLowerCase();
-//        }
-//
-//
-//
-//        //path --need normalization
-//        //the first thing we do is remove .. or . using normalize function in uri
-//        URI normalizedUrl_1 = uri.normalize();
-//          String path = uri.getPath();
-//        //then we need to normalize stuff in the path itself too
-//        String normalizedPath = normalizePath(path);
-//
-//        //query --need normalization
-//            String query =uri.getQuery();
-////        String normalizedQuery = normalizeQuery(query);
-//          String normalizedQuery= query;
-//
-//        fragment --need normalization
-//        String fragment =uri.getFragment();
-//        String normalizedFragment = normalizeFragment(fragment);
-//
-//        URI normalized_URL = new URI(normalizedScheme, userInfo, normalizedHost, normalizedPort, normalizedPath, normalizedQuery, normalizedFragment);
-//        URI normalized_URL = new URI(uri.getScheme(), userInfo, host, normalizedPort, path, query, normalizedFragment);
-//        return normalized_URL.toString();
-
-
     }
 
-    private static String normalizeQuery(String query) {
-        if (query == null || query.isEmpty()) {
-            return null;
-        }
-
-        // Split query parameters (they are sperated by &)
-        String[] params = query.split("&");
-        if (params.length > 1) {
-            //sort the parameters alphabetically:
-            Arrays.sort(params);
-            //new builder to put our parameters (non-empty ones)
-            StringBuilder builder = new StringBuilder();
-            for (String par : params) {
-                if (par.isEmpty()) {
-                    //ignore it
-                    continue;
-                }
-                int length = builder.length();
-                //check if its tha first par or not to add &
-                if (length > 0) {
-                    builder.append("&");
-                }
-                builder.append(par);
-            }
-            return builder.toString();
-        }
-        return query;
-    }
-
-
-    //in path normalization we remove any duplicate / and remove / at the end
-    private static String normalizePath(String path) {
-        String removeDuplicateResult = removeDuplicates(path);
-        if (removeDuplicateResult == null || removeDuplicateResult.isEmpty()) {
-            return null;
-        }
-
-        //we capitalize any necessary encoded
-        int length = removeDuplicateResult.length();
-        // capitalize letters in escape sequences
-        StringBuilder sb = new StringBuilder(length);
-        for (int i = 0; i < length; i++) {
-            char c = removeDuplicateResult.charAt(i);
-            if (c == '%' && i + 2 < length) {
-                String hex = removeDuplicateResult.substring(i + 1, i + 3);
-                try {
-                    c = (char) Integer.parseInt(hex, 16);
-                    i += 2;
-                } catch (NumberFormatException e) {
-                    // Invalid hex code, keep the original value
-                }
-            } else if (isUnreserved(c)) {
-                // unreserved characters are already decoded, keep them as is
-            } else {
-                // capitalize escape sequence letters
-                c = Character.toUpperCase(c);
-            }
-            sb.append(c);
-        }
-
-
-        String capitalizedResult = sb.toString();
-
-        // decode percent-encoded octets of unreserved characters
-        //in this step, the url might contain encoded undreserverd chars such as %20 for space
-        //ALPHA (%41–%5A and %61–%7A), DIGIT (%30–%39), hyphen (%2D), period (%2E), underscore (%5F), or tilde (%7E)
-        //the URLdecoder will decode it to its correct format
-        String decoderResult = URLDecoder.decode(capitalizedResult, StandardCharsets.UTF_8);
-
-
-        int lengthh = decoderResult.length();
-        //remove the last slash if exists
-        char value = decoderResult.charAt(lengthh - 1);
-        if (value == '/') {
-            return decoderResult.substring(0, lengthh - 1);
-        }
-
-        return decoderResult;
-    }
-
-    // check if a character is unreserved
-    private  static boolean isUnreserved(char c) {
-        return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
-                (c >= '0' && c <= '9') || c == '-' || c == '.' ||
-                c == '_' || c == '~';
-    }
-
-    private static  String removeDuplicates(String text) {
-        if (text == null || text.isEmpty()) {
-            return text;
-        }
-        //we want to return a string after we remove any duplicate /
-        StringBuilder builder = new StringBuilder();
-        int duplicatesCount = 0;
-        int textLength = text.length();
-        for (int i = 0; i < textLength; ++i) {
-            char value = text.charAt(i);
-            if (value == '/') {
-                //meaning we have consecutive   /
-                duplicatesCount += 1;
-                if (duplicatesCount > 1) {
-                    continue;
-                }
-            } else {
-                //we reset
-                duplicatesCount = 0;
-            }
-            builder.append(value);
-        }
-        return builder.toString();
-    }
 
     //in port normalization, we check if the port number is = to the scheme default then we remove it else we keep it
     //http default port is 80, while https default is 443
@@ -837,12 +718,7 @@ public class WebCrawler implements Runnable {
         return port;
     }
 
-    private static String normalizeFragment(String fragment) {
-        if (fragment == null || fragment.isEmpty()) {
-            return null;
-        }
-        return fragment;
-    }
+
     //---------------------------------------------------------------------------------------------------
 
     //--------------------------------------Robot Txt File-------------------------------------------------
