@@ -162,6 +162,7 @@ public class WebCrawler implements Runnable {
        // int totalPages=0;
 
         int totalPages= loadStateFromFile();
+        //int totalPages=0;
         System.out.println("after loading, the current crawled are:" + totalPages);
 
 
@@ -342,7 +343,7 @@ public class WebCrawler implements Runnable {
             //incrementing page:
 
             //save to state every time we crawl
-            saveStateToFile(totalPages);
+           // saveStateToFile(totalPages);
 
         }
 
