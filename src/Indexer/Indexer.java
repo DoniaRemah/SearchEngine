@@ -53,23 +53,26 @@ public class Indexer implements Runnable{
         for(int i=docStart; i<docEnd; i++){
 
             String url = crawlerDocs.get(i).get("URL").toString();
-            String htmlDoc =crawlerDocs.get(i).get("HTMLDoc").toString();
-            // CALL ON INDEXING FUNCTION
-            Indexing(url,htmlDoc);
+            if(crawlerDocs.get(i) !=null){
+                org.bson.Document htmlDoc =crawlerDocs.get(i);
+                // CALL ON INDEXING FUNCTION
+                Indexing(url,htmlDoc);
+            }
+
+
         }
 
         System.out.println("I am thread "+threadID+" Finished docs from index "+docStart +" to "+ (docEnd-1) );
     }
 
-    private void Indexing(String URL, String htmlDoc){
+    private void Indexing(String URL, org.bson.Document htmlDoc){
 
         // TODO Remove all html doc processing and start from Stemming (WHEN CRAWLER IS FINISHED)
 
-        // REMOVE HTML TAGS
-        Document parsedHtmlDoc = Jsoup.parse(htmlDoc);
-        String docTitle = parsedHtmlDoc.title() ;
-        String docContent = parsedHtmlDoc.text();
-        String unEditedParsedDoc = parsedHtmlDoc.text();
+//        // REMOVE HTML TAGS
+        String docTitle = htmlDoc.get("Title").toString();
+        String docContent = htmlDoc.get("Content").toString();
+
 
 //        // Removing all line breaks, any characters apart from letters and Whitespace.
 //        docContent = docContent.replaceAll("\n", " ")
@@ -101,26 +104,29 @@ public class Indexer implements Runnable{
 
         int word_index=0;
         for (String word: words) {
-            EnglishStemmer.setCurrent(word);
-            EnglishStemmer.stem();
-            String stemmed_word = EnglishStemmer.getCurrent();
+            if(word!="") {
+                EnglishStemmer.setCurrent(word);
+                EnglishStemmer.stem();
+                String stemmed_word = EnglishStemmer.getCurrent();
 
-            // Checking if the word already exists and increasing term frequency
-            if (stemmedWords.containsKey(stemmed_word)){
-                int old_tf = stemmedWords.get(stemmed_word).get(0);
-                old_tf++;
+                // Checking if the word already exists and increasing term frequency
+                if (stemmedWords.containsKey(stemmed_word)) {
+                    int old_tf = stemmedWords.get(stemmed_word).get(0);
+                    old_tf++;
 
-                // Updating TF
-                stemmedWords.get(stemmed_word).set(0,old_tf);
-            }else{
-                // Inserting TF and Index of word in document.
-                List<Integer> value_list = new ArrayList<>();
-                value_list.add(1);
-                value_list.add(word_index);
-                stemmedWords.put(stemmed_word,value_list);
+                    // Updating TF
+                    stemmedWords.get(stemmed_word).set(0, old_tf);
+                } else {
+                    // Inserting TF and Index of word in document.
+                    List<Integer> value_list = new ArrayList<>();
+                    value_list.add(1);
+                    value_list.add(word_index);
+                    stemmedWords.put(stemmed_word, value_list);
 
+                }
+                word_index++;
             }
-            word_index++;
+
         }
 
         for(String word:stemmedWords.keySet()){
@@ -134,28 +140,28 @@ public class Indexer implements Runnable{
                 return;
             }
 
-            //   GETTING SNIPPET STRING
-            String snippetString = "";
-            int wordIndex = stemmedWords.get(word).get(1);
-            if (wordIndex - 400 < 0) {
-                if (wordIndex + 400< words.length){
-                    snippetString = unEditedParsedDoc.substring(0,wordIndex+400);
-                }else{
-                    snippetString = unEditedParsedDoc.substring(0,wordIndex);
-                }
-
-            } else if (wordIndex + 400 > words.length) {
-                if (wordIndex - 400 > 0){
-                    snippetString = unEditedParsedDoc.substring(wordIndex-400,wordIndex);
-                }
-            } else{
-                snippetString = unEditedParsedDoc.substring(wordIndex-400,wordIndex+400);
-            }
+//            //   GETTING SNIPPET STRING
+//            String snippetString = "";
+//            int wordIndex = stemmedWords.get(word).get(1);
+//            if (wordIndex - 400 < 0) {
+//                if (wordIndex + 400< words.length){
+//                    snippetString = unEditedParsedDoc.substring(0,wordIndex+400);
+//                }else{
+//                    snippetString = unEditedParsedDoc.substring(0,wordIndex);
+//                }
+//
+//            } else if (wordIndex + 400 > words.length) {
+//                if (wordIndex - 400 > 0){
+//                    snippetString = unEditedParsedDoc.substring(wordIndex-400,wordIndex);
+//                }
+//            } else{
+//                snippetString = unEditedParsedDoc.substring(wordIndex-400,wordIndex+400);
+//            }
 
             org.bson.Document finalIndexerDoc =new org.bson.Document("Word",word).append("URL",URL)
                     .append("Title",docTitle)
-                    .append("TF",normalized_tf)
-                    .append("Content",snippetString);
+                    .append("TF",normalized_tf);
+//                    .append("Content",snippetString);
 
             // If word previously exists in map
             synchronized (words_table){

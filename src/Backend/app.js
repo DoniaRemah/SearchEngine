@@ -187,7 +187,7 @@ app.get('/search',async (req,res)=>{
             return regex.test(document.Content);
         });
         //*****************************************Remote in mongodb*******************************************//
-        //const foundDocuments=await database.collection("Crawler").find({Content:{$regex:`${query2}`}}).toArray();
+        //const foundDocuments=await database.collection("WebCrawler").find({Content:{$regex:`${query2}`}}).toArray();
     
         if (foundDocuments.length==0){
             console.log('No results found');
@@ -357,14 +357,17 @@ app.get('/search',async (req,res)=>{
             //*****************************************Local*******************************************//
             const foundDocument = exportedCrawler.find(item => item.URL === foundDocuments[i].URL);
             //*****************************************Remote in mongodb*******************************************//
-            //const foundDocument=await database.collection("Crawler").findOne({URL:foundDocuments[i].URL});
+            //const foundDocument=await database.collection("WebCrawler").findOne({URL:foundDocuments[i].URL});
 
 
             //the found document will contain the URL, Title, and Content fields
             info_object.title=foundDocument.Title;
             info_object.content=foundDocument.Content;
+            var rank=1;
             //get the rank from the Rank field
-            const rank=foundDocument.Rank;
+            if(typeof foundDocument.Rank != "undefined"){
+                rank=foundDocument.Rank;
+            }
             // console.log(rank);
             //get the IDF_TF from the foundDocuments[i] object
             const IDF_TF= parseFloat(foundDocuments[i].IDF_TF);
