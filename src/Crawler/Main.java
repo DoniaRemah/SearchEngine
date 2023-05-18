@@ -81,6 +81,7 @@ public class Main {
 //        } else {
 //            System.out.println("Failed to delete the file.");
 //        }
+
         DBManager dbManager = new DBManager();
         dbManager.insertManyCrawlerDocument(WebCrawler.DocumentsAndUrlsWithPrio);
         dbManager.close();

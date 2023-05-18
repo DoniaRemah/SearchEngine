@@ -34,17 +34,18 @@ public class WebCrawler implements Runnable {
 
 
     private static final String STATE_FILE_PATH = "crawlerState.txt";
-    private static final int MAX_CRAWLED_PAGES = 200;
+    private static final int MAX_CRAWLED_PAGES = ;
 //    private static final int MAX_PAGES_PER_CRAWLER = 1000;
 //    private static final int MAX_PAGES_PER_THREAD = 100;
 
     private static int numberOfThreads; //input from user and this is per instance
-    public Vector<Thread> threads;
+    public static Vector<Thread> threads;
 
     public static AtomicInteger currentCrawledPages =  new AtomicInteger(0);
 
     public static Vector<String> disallowed_URLs= new Vector<String>();
 
+    private static boolean exit = false;
     private static List<String> seeds;
     public static  Queue<String> linksToCrawl = new LinkedList<>();
 
@@ -92,9 +93,14 @@ public class WebCrawler implements Runnable {
         //in the run we want to crawl as each thread will start crawling process
        // System.out.println("I am thread"+Thread.currentThread().getName());
         crawl();
+
     }
     //-----------------------------------------------------------------------------------------------------
-
+    // for stopping the thread
+    public void stop()
+    {
+        exit = true;
+    }
 
     //-------------------------------------------Crawl Function---------------------------------------------------
     /*
@@ -154,20 +160,41 @@ public class WebCrawler implements Runnable {
 
 
         //so max number of pages per thread is determined by user
-
-        boolean isEmpty=false;
-        while (isEmpty && currentCrawledPages.get() < MAX_CRAWLED_PAGES ){
-            if (linksToCrawl != null){
-                synchronized (linksToCrawl){
-                    isEmpty=linksToCrawl.isEmpty();
+        int totalPages=0;
+        if (DocumentsAndUrlsWithPrio !=null){
+            synchronized (DocumentsAndUrlsWithPrio){
+                totalPages = DocumentsAndUrlsWithPrio.size();
+                if(totalPages >= MAX_CRAWLED_PAGES){
+                    return;
                 }
             }
         }
 
+        boolean isEmpty=false;
+        while ( totalPages< MAX_CRAWLED_PAGES ){
+            if (linksToCrawl != null){
+                synchronized (linksToCrawl){
+                    isEmpty=linksToCrawl.isEmpty();
+                }
+                if(isEmpty == false){
+                    break;
+                }
+            }
+            if (DocumentsAndUrlsWithPrio !=null){
+                synchronized (DocumentsAndUrlsWithPrio){
+                    totalPages = DocumentsAndUrlsWithPrio.size();
+                    if(totalPages >= MAX_CRAWLED_PAGES){
+                        return;
+                    }
+                }
+            }
+        }
 
+        // TODO STOP EXECUTION OF ALL THREADS SOMEHOW
+        System.out.println("//////////////////TOTAL COUNT://///////////// "+totalPages);
 
         // Loop until there are no more links to crawl or the maximum number of crawled pages is reached
-        while (currentCrawledPages.get() < MAX_CRAWLED_PAGES && !isEmpty) {
+        while (totalPages < MAX_CRAWLED_PAGES && !isEmpty) {
 
             String url="";
             if (linksToCrawl != null){
@@ -233,7 +260,7 @@ public class WebCrawler implements Runnable {
             }
 
 
-
+            boolean callContinue = false;
             //now see robot file:
             URL roboturl = getRobotTxt(url);
             System.out.println("robot url if exists " + roboturl);
@@ -241,10 +268,13 @@ public class WebCrawler implements Runnable {
                 try {
                     ReadRobotTxt(roboturl,url);
                 } catch (MalformedURLException e) {
+                    currentCrawledPages.decrementAndGet();
                     //currentCrawledPages.decrementAndGet();
-                    throw new RuntimeException(e);
+                    System.out.println (e.toString());
+                    continue;
                 }
             }
+
 
 
             // Download the document from the URL
@@ -264,10 +294,10 @@ public class WebCrawler implements Runnable {
                 ExtractLinks(htmlDoc);
 
             } catch (IOException e) {
-                //currentCrawledPages.decrementAndGet();
-                throw new RuntimeException(e);
+                currentCrawledPages.decrementAndGet();
+                System.out.println (e.toString());
+                continue;
             }
-
 
 
             //now lets clean up the document
@@ -281,7 +311,17 @@ public class WebCrawler implements Runnable {
                     addDocument(DocToBeAdded, url);
                 }
             }
+            if (DocumentsAndUrlsWithPrio != null){
+                synchronized (DocumentsAndUrlsWithPrio){
+                    totalPages = DocumentsAndUrlsWithPrio.size();
+                }
+                if(totalPages >= MAX_CRAWLED_PAGES){
+                    return;
+                }
 
+            }
+
+            System.out.println("//////////////////TOTAL COUNT://///////////// "+totalPages);
 
            // System.out.println("after downloading doc from url " + htmlDoc);
 
@@ -569,7 +609,8 @@ public class WebCrawler implements Runnable {
             try {
                normalizedLink = normalizeURL(linkHref);
             } catch (URISyntaxException e) {
-                throw new RuntimeException(e);
+                System.out.println (e.toString());
+                continue;
             }
 
             LinkPointsTo.add(normalizedLink);
@@ -871,7 +912,7 @@ public class WebCrawler implements Runnable {
 
 
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.out.println (e.toString());
         }
 
 

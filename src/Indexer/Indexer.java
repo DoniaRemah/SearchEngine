@@ -70,24 +70,25 @@ public class Indexer implements Runnable{
         String docTitle = parsedHtmlDoc.title() ;
         String docContent = parsedHtmlDoc.text();
         String unEditedParsedDoc = parsedHtmlDoc.text();
-        // Removing all line breaks, any characters apart from letters and Whitespace.
-        docContent = docContent.replaceAll("\n", " ")
-                .replaceAll("[^a-zA-Z ]", " ")
-                .toLowerCase();
 
-        // Removing all Stop words.
-        try {
-            File StopWords = new File("StopWords.txt");
-            Scanner Words = new Scanner(StopWords);
-
-            while (Words.hasNextLine()) {
-                docContent = docContent.replaceAll("\\s+" +Words.nextLine() + "\\s+", " ");
-            }
-
-            Words.close();
-        } catch (IOException e) {
-            System.out.println(e);
-        }
+//        // Removing all line breaks, any characters apart from letters and Whitespace.
+//        docContent = docContent.replaceAll("\n", " ")
+//                .replaceAll("[^a-zA-Z ]", " ")
+//                .toLowerCase();
+//
+//        // Removing all Stop words.
+//        try {
+//            File StopWords = new File("StopWords.txt");
+//            Scanner Words = new Scanner(StopWords);
+//
+//            while (Words.hasNextLine()) {
+//                docContent = docContent.replaceAll("\\s+" +Words.nextLine() + "\\s+", " ");
+//            }
+//
+//            Words.close();
+//        } catch (IOException e) {
+//            System.out.println(e);
+//        }
 
         // Extracting words by splitting on whitespace
         String[] words = docContent.split("\\s+");
