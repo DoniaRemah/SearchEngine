@@ -34,7 +34,7 @@ public class WebCrawler implements Runnable {
 
 
     private static final String STATE_FILE_PATH = "crawlerState.txt";
-    private static final int MAX_CRAWLED_PAGES = ;
+    private static final int MAX_CRAWLED_PAGES = 1000 ;
 //    private static final int MAX_PAGES_PER_CRAWLER = 1000;
 //    private static final int MAX_PAGES_PER_THREAD = 100;
 

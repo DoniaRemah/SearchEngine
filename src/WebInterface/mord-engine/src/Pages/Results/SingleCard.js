@@ -4,23 +4,30 @@ import { Link } from "react-router-dom";
 
 export default function SingleCard(props) {
   const paragraph = props.item.Content;
-  const substring = props.words;
+  const substrings = props.words;
 
   const highlightSubstring = () => {
-    for (let index = 0; index < substring.length; index++) {
-      const startIndex = paragraph.indexOf(substring[index]);
-      if (startIndex !== -1) {
-        const endIndex = startIndex + substring[index].length;
-        return (
-          <>
-            {paragraph.substring(0, startIndex)}
-            <strong>{paragraph.substring(startIndex, endIndex)}</strong>
-            {paragraph.substring(endIndex)}
-          </>
+    let formattedText = paragraph;
+
+    for (let index = 0; index < substrings.length; index++) {
+      const substring = substrings[index];
+      const regex = new RegExp(`\\b${substring}\\b`, "gi");
+      const matchFound = formattedText.match(regex);
+
+      if (matchFound) {
+        formattedText = formattedText.replace(
+          regex,
+          (match) => `<strong>${match}</strong>`
+        );
+      } else if (formattedText.includes(substring)) {
+        formattedText = formattedText.replace(
+          substring,
+          `<strong>${substring}</strong>`
         );
       }
     }
-    return paragraph;
+
+    return { __html: formattedText };
   };
 
   return (
@@ -31,7 +38,11 @@ export default function SingleCard(props) {
       <a className={classes.url} href={props.item.URL} target="_blank">
         {props.item.URL}
       </a>
-      <p className={classes.para}>{highlightSubstring()}</p>
+      {/* <p className={classes.para}>{highlightSubstring()}</p> */}
+
+      <p
+        dangerouslySetInnerHTML={highlightSubstring()}
+        className={classes.para}></p>
     </div>
   );
 }
