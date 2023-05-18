@@ -27,7 +27,7 @@ public class Indexer implements Runnable{
     DBManager dbManager = new DBManager();
     Vector<String> SpamUrls;
 
-    Hashtable<String, List<org.bson.Document>> words_table = new Hashtable<String, List<org.bson.Document>>();
+    static Hashtable<String, List<org.bson.Document>> words_table = new Hashtable<String, List<org.bson.Document>>();
 
     Indexer(AtomicInteger cDocsNum, List<org.bson.Document> cDocs, int numberThreads, Hashtable<String, List<org.bson.Document>> wTable){
 
@@ -69,9 +69,15 @@ public class Indexer implements Runnable{
 
         // TODO Remove all html doc processing and start from Stemming (WHEN CRAWLER IS FINISHED)
 
+        String docTitle="";
 //        // REMOVE HTML TAGS
-        String docTitle = htmlDoc.get("Title").toString();
-        String docContent = htmlDoc.get("Content").toString();
+        if (htmlDoc.get("Title") !=null){
+            docTitle = htmlDoc.get("Title").toString();
+        }
+        String docContent="";
+        if (htmlDoc.get("Content") != null){
+            docContent = htmlDoc.get("Content").toString();
+        }
 
 
 //        // Removing all line breaks, any characters apart from letters and Whitespace.
@@ -165,7 +171,7 @@ public class Indexer implements Runnable{
 
             // If word previously exists in map
             synchronized (words_table){
-                if(words_table.contains(word)){
+                if(words_table.containsKey(word)){
                     words_table.get(word).add(finalIndexerDoc);
                 }else{
                     List<org.bson.Document> newdocList = new ArrayList<org.bson.Document>();
