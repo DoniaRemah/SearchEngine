@@ -350,7 +350,7 @@ app.get('/search',async (req,res)=>{
         for(let i=0;i<foundDocuments.length;i++)
         {
             var info_object={};
-            // info_object.word=foundDocuments[i].word;
+            info_object.word=foundDocuments[i].word;
             info_object.url=foundDocuments[i].URL;;
             //search for the URL in the database
 
@@ -413,7 +413,7 @@ app.get('/search',async (req,res)=>{
         //will get the title and the snippet from the content of the document
 
         response.Words=finalQueryWords;
-
+    
         for(let i=0;i<results.length;i++)
         {
             var tempObject={};
@@ -423,6 +423,8 @@ app.get('/search',async (req,res)=>{
             //const index=results[i].content.indexOf(results[i].word);
             const content = results[i].content;
             const word = results[i].word;
+
+            console.log(word);
             
             const regex = new RegExp(`\\b${word}\\w*`);
             const match = content.match(regex);
