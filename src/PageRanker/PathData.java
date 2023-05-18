@@ -7,10 +7,10 @@ import java.util.List;
 @Data
 public class PathData {
     public String URL;
-    public List<String> pointsTo;
+    public List<String> PointsT0;
 
     public List<String> getPointsTo() {
-        return pointsTo;
+        return PointsT0;
     }
 
     public String getURL() {
