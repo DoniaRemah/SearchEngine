@@ -22,7 +22,7 @@ app.use(cors());
 ///////////////////////////////trial to access the database files///////////////////////////////////////////
 let exportedCrawler = null;
     try {
-    const fileContent = fs.readFileSync('./Exports/Crawler.json', 'utf8');
+    const fileContent = fs.readFileSync('./Exports/WebCrawler.json', 'utf8');
     exportedCrawler = JSON.parse(fileContent);
     //console.log(exportedCrawler);
     } catch (err) {
@@ -358,6 +358,8 @@ app.get('/search',async (req,res)=>{
             const foundDocument = exportedCrawler.find(item => item.URL === foundDocuments[i].URL);
             //*****************************************Remote in mongodb*******************************************//
             //const foundDocument=await database.collection("WebCrawler").findOne({URL:foundDocuments[i].URL});
+
+            //console.log(foundDocument);
 
 
             //the found document will contain the URL, Title, and Content fields
