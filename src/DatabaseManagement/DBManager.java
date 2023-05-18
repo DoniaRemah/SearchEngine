@@ -3,12 +3,14 @@ package DatabaseManagement;
 import Crawler.PageDocument;
 import com.mongodb.MongoClientURI;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoException;
 import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.*;
+import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 
 import java.util.ArrayList;
@@ -88,7 +90,9 @@ public class DBManager {
 
         // Inserting document into the collection
         if (FinalCrawlerDocs.size() != 0){
-            collection.insertMany(FinalCrawlerDocs);
+            for (int i=0;i<FinalCrawlerDocs.size();i++){
+                collection.insertOne(FinalCrawlerDocs.get(i));
+            }
         }
         System.out.println("Crawler Documents Inserted successfully");
 
@@ -226,18 +230,27 @@ public class DBManager {
                 Document filter = update.get("$filter", Document.class);
                 Document updateData = update.get("$set", Document.class);
                 UpdateOneModel<Document> updateModel = new UpdateOneModel<>(filter, updateData);
-                bulkOperations.add(updateModel);
+                try {
+                    UpdateResult updateResult = collection.updateOne(filter, updateData);
+                    // Process the update result as needed
+                } catch (MongoException e) {
+                    // Handle any exceptions that occur during the update
+                    e.printStackTrace();
+                }
             }
 
-            BulkWriteOptions options = new BulkWriteOptions().ordered(false);
-            BulkWriteResult bulkWriteResult = collection.bulkWrite(bulkOperations, options);
+//            BulkWriteOptions options = new BulkWriteOptions().ordered(false);
+//            BulkWriteResult bulkWriteResult = collection.bulkWrite(bulkOperations, options);
 //                    int modifiedCount = bulkWriteResult.getModifiedCount();
 
 //                    System.out.println(bulkWriteResult.wasAcknowledged());
         }
 
         if (docsListToBeInserted.size() != 0){
-            collection.insertMany(docsListToBeInserted);
+            for (int i=0;i<docsListToBeInserted.size();i++){
+                collection.insertOne(docsListToBeInserted.get(i));
+            }
+            //collection.insertMany(docsListToBeInserted);
         }
         System.out.println("Inserted IndexerDocuments into Indexer Collection");
     }
