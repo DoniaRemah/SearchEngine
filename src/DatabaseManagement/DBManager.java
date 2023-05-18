@@ -170,24 +170,24 @@ public class DBManager {
                 // Looping over every document associated with the word.
                 for (int i = 0; i < IndexerTable.get(word).size(); i++) {
 
-                        // i-> index of every document associated with the word.
-                        Document wordDocData = IndexerTable.get(word).get(i);
-                        Document WordDocProperties = new Document();
+                    // i-> index of every document associated with the word.
+                    Document wordDocData = IndexerTable.get(word).get(i);
+                    Document WordDocProperties = new Document();
 
-                        // Extracting data to be inserted in each associated documented.
-                        String url = String.valueOf(wordDocData.get("URL"));
-                        String title = String.valueOf(wordDocData.get("Title"));
-                        String IDF_TF = String.valueOf(wordDocData.get("IDF_TF"));
+                    // Extracting data to be inserted in each associated documented.
+                    String url = String.valueOf(wordDocData.get("URL"));
+                    String title = String.valueOf(wordDocData.get("Title"));
+                    String IDF_TF = String.valueOf(wordDocData.get("IDF_TF"));
 
 
-                        // CHECKING THAT URL WASN'T ADDED BEFORE
+                    // CHECKING THAT URL WASN'T ADDED BEFORE
 
-                        // Retrieving a certain url associated with the word already existing in database
+                    // Retrieving a certain url associated with the word already existing in database
 //                        Document query = new Document("Word", word).append("FoundInDocs.URL", url);
 //                        Document projection = new Document("FoundInDocs", 1);
 //                        Document result = collection.find(query).projection(projection).first();
 
-                        // URL Hasn't been added before.
+                    // URL Hasn't been added before.
 //                        if (result == null) {
 //
 //                            // Appending new url document associated to the word in db
@@ -262,7 +262,7 @@ public class DBManager {
 
 
 
-    
+
     //////////////////////////////////////// CLOSING
 
     /**
