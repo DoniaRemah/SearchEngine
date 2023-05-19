@@ -1,19 +1,22 @@
 package PageRanker;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
 public class PathData {
-    public String URL;
-    public List<String> PointsT0;
+    @JsonProperty("URL")
+    private String url;
+    @JsonProperty("PointsT0")
+    private List<String> pointsTo;
 
     public List<String> getPointsTo() {
-        return PointsT0;
+        return pointsTo;
     }
 
     public String getURL() {
-        return URL;
+        return url;
     }
 }
