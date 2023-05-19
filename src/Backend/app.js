@@ -448,12 +448,12 @@ app.get('/search',async (req,res)=>{
                     tempObject.Content=results[i].content.slice(0,index+400);
                 }
                 else{
-                    tempObject.Content=results[i].content.slice(0,index);
+                    tempObject.Content=results[i].content.slice(0,index+50);
                 }
             }
             else if(index+400>results[i].content.length){
                 if(index-400>0){
-                    tempObject.Content=results[i].content.slice(index-400,index);
+                    tempObject.Content=results[i].content.slice(index-400,index+50);
                 }
             }
             else{

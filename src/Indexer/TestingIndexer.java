@@ -5,7 +5,7 @@ public class TestingIndexer {
     public static void main(String[] args) throws InterruptedException {
         long startTime = System.currentTimeMillis();
 
-        MasterIndexer masterIndexer = new MasterIndexer(4);
+        MasterIndexer masterIndexer = new MasterIndexer(100);
 
         long endTime = System.currentTimeMillis();
 
